@@ -52,7 +52,7 @@ const menuItem =
 function ProjectSwitcher() {
   const { lang, t } = useLanguage();
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState<Tenant>(tenants[0]);
+  const [active, setActive] = useState<Tenant>(tenants[0]!);
   const ref = useClickOutside(() => setOpen(false));
 
   return (
