@@ -14,6 +14,7 @@ import {
 import { tenants, type Tenant } from "@/lib/tenants";
 import { useLanguage } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 function useClickOutside(onClose: () => void) {
   const ref = useRef<HTMLDivElement>(null);
@@ -215,7 +216,13 @@ export function TopNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
+      <div className="flex h-16 w-full items-center gap-3 px-4 sm:gap-4 sm:px-6">
+        <SidebarTrigger
+          aria-label={t("toggleSidebar")}
+          title={t("toggleSidebar")}
+          className="h-9 w-9 shrink-0 border border-border bg-card shadow-sm hover:bg-accent"
+        />
+
         {/* Brand */}
         <div className="flex shrink-0 items-center gap-2.5">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-sm font-black text-primary-foreground">

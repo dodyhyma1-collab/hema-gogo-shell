@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Activity, ArrowUpRight, CheckCircle2, DollarSign, Users } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/lib/i18n";
 import { TopNav } from "@/components/shell/top-nav";
+import { AppSidebar } from "@/components/shell/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,9 +44,11 @@ function Dashboard() {
   const { lang, t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-secondary/40">
-      <TopNav />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset className="min-w-0 bg-secondary/40">
+        <TopNav />
+        <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           {t("overview")}
         </p>
@@ -93,8 +97,9 @@ function Dashboard() {
             ))}
           </ul>
         </div>
-      </main>
-    </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
 
