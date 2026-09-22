@@ -82,7 +82,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLang(detectInitialLang());
   }, []);
 
-  const dir = lang === "ar" ? "rtl" : "ltr";
+  const dir: "ltr" | "rtl" = lang === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
     document.documentElement.dir = dir;
