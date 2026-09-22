@@ -141,4 +141,12 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+
+  [data-sidebar="trigger"] .sidebar-trigger-icon {
+    transition: transform 200ms ease;
+  }
+
+  html[dir="rtl"] [data-sidebar="trigger"] .sidebar-trigger-icon {
+    transform: scaleX(-1);
+  }
 }
