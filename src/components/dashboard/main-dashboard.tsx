@@ -193,7 +193,7 @@ export function MainDashboard() {
   const { lang } = useLanguage();
   const c = copy[lang];
   const data = buildChartData(lang);
-  const [lastAction, setLastAction] = useState<string | null>(null);
+  const [lastAction, setLastAction] = useState<number | null>(null);
   const revenueConfig: ChartConfig = {
     actual: { label: c.actual, color: "var(--chart-2)" },
     forecast: { label: c.forecast, color: "var(--chart-1)" },
@@ -224,9 +224,9 @@ export function MainDashboard() {
         </div>
       </div>
 
-      <section aria-label={c.eyebrow} className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-6">
+      <section aria-label={c.eyebrow} className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {summaryCards.map((card) => (
-          <article key={card.label} className="rounded-lg border border-border bg-card p-4 shadow-sm">
+          <article key={card.label} className="rounded-lg border border-border bg-card p-3 shadow-sm sm:p-4">
             <div className="flex items-start justify-between gap-3">
               <span className={cn("grid size-9 shrink-0 place-items-center rounded-md", card.iconClass)}>
                 <card.icon className="size-4.5" aria-hidden="true" />
@@ -239,7 +239,7 @@ export function MainDashboard() {
               )}
               {!card.delta && <span className="rounded-full bg-chart-2/15 px-2 py-0.5 text-[10px] font-semibold text-chart-2">LIVE</span>}
             </div>
-            <p className="mt-4 text-2xl font-bold tabular-nums">{card.value}</p>
+            <p className="mt-4 text-xl font-bold tabular-nums sm:text-2xl">{card.value}</p>
             <p className="mt-1 truncate text-xs font-medium text-muted-foreground">{c[card.label]}</p>
             <p className="mt-2 text-[11px] text-muted-foreground">{c[card.note]}</p>
           </article>
@@ -342,7 +342,7 @@ export function MainDashboard() {
                 key={action.label}
                 variant={index === 0 ? "default" : "outline"}
                 className="h-10 w-full justify-start"
-                onClick={() => setLastAction(action.label)}
+                onClick={() => setLastAction(index)}
               >
                 <action.icon className="size-4" />
                 <span className="truncate">{action.label}</span>
@@ -352,7 +352,7 @@ export function MainDashboard() {
           {lastAction && (
             <div role="status" className="mt-3 flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-xs text-secondary-foreground">
               <CheckCircle2 className="size-4 shrink-0 text-chart-2" />
-              <span className="min-w-0 truncate">{lastAction} {c.actionReady}</span>
+              <span className="min-w-0 truncate">{quickActions[lastAction]?.label} {c.actionReady}</span>
             </div>
           )}
           <div className="mt-4 flex items-center justify-between border-t border-border pt-4 text-xs">
