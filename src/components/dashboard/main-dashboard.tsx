@@ -14,7 +14,6 @@ import {
 import {
   ArrowDownRight,
   ArrowUpRight,
-  Bot,
   CheckCircle2,
   CircleDollarSign,
   Clock3,
@@ -24,7 +23,6 @@ import {
   Plus,
   Radio,
   Sparkles,
-  Target,
   UserPlus,
   Users,
   WandSparkles,
@@ -152,6 +150,7 @@ const revenueValues = [
 
 const sourceValues = [35, 24, 18, 13, 10];
 const sourceColors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
+const sourceColorClasses = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5"];
 const accuracyValues = [86, 88, 87, 91, 93, 94.2];
 
 const activity = {
@@ -199,9 +198,7 @@ export function MainDashboard() {
     actual: { label: c.actual, color: "var(--chart-2)" },
     forecast: { label: c.forecast, color: "var(--chart-1)" },
   };
-  const sourceConfig: ChartConfig = Object.fromEntries(
-    data.sources.map((source, index) => [source.name, { label: source.name, color: sourceColors[index] }]),
-  );
+  const sourceConfig: ChartConfig = {};
   const accuracyConfig: ChartConfig = { value: { label: c.latestScore, color: "var(--chart-2)" } };
   const quickActions = [
     { label: c.addLead, icon: Plus },
@@ -288,7 +285,7 @@ export function MainDashboard() {
             <div className="space-y-2.5">
               {data.sources.map((source, index) => (
                 <div key={source.name} className="flex items-center gap-2 text-xs">
-                  <span className="size-2 shrink-0 rounded-sm" style={{ backgroundColor: sourceColors[index] }} />
+                  <span className={cn("size-2 shrink-0 rounded-sm", sourceColorClasses[index])} />
                   <span className="min-w-0 flex-1 truncate text-muted-foreground">{source.name}</span>
                   <span className="font-semibold tabular-nums">{source.value}%</span>
                 </div>
