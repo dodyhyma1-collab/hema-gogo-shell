@@ -1,15 +1,14 @@
-# Collapsible app sidebar
+# Main dashboard
 
 ## What will change
-- Add a responsive sidebar beside the existing Hema Gogo workspace overview.
-- Include all nine requested destinations with distinct Lucide SVG icons and bilingual English/Arabic labels.
-- Keep the overview as the active destination while making every sidebar item selectable without adding unfinished pages.
-- Add a persistent desktop mini-collapse mode with icon tooltips and a slide-out mobile menu.
-- Place the sidebar control in the top bar so it remains available in expanded, collapsed, mobile, LTR, and RTL states.
-- Mirror the sidebar side, icon direction, spacing, and mobile drawer automatically when Arabic is selected.
+- Replace the placeholder overview with a polished operational dashboard using realistic mock business data.
+- Add six summary cards for total leads, new leads, active conversations, EGP revenue, pending tasks, and automation status.
+- Add responsive charts for monthly revenue versus forecast, lead-source distribution, and AI response accuracy.
+- Add a recent activity feed with useful event context and a compact set of quick actions.
+- Provide complete English and Arabic labels, values, and RTL/LTR layout behavior.
 
 ## Technical details
-- Use the existing shadcn sidebar primitives and semantic theme colors.
-- Patch the shared sidebar width utilities to Tailwind 4-compatible `var(...)` syntax where needed.
-- Preserve the current tenant switcher, search, notifications, profile menu, translations, and overview content.
-- Verify desktop/mobile collapse behavior and English/Arabic mirroring in the running preview.
+- Use the existing shell, semantic design tokens, Lucide icons, and installed Recharts package.
+- Keep all mock data local and presentation-only; no login, database, or external services will be added.
+- Ensure charts have stable responsive dimensions, accessible labels, localized tooltips, and mobile-friendly stacking.
+- Verify the finished dashboard in desktop, mobile, English, and Arabic views.
