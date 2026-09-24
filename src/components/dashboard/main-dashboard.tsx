@@ -349,7 +349,7 @@ export function MainDashboard() {
               </Button>
             ))}
           </div>
-          {lastAction && (
+          {lastAction !== null && (
             <div role="status" className="mt-3 flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-xs text-secondary-foreground">
               <CheckCircle2 className="size-4 shrink-0 text-chart-2" />
               <span className="min-w-0 truncate">{quickActions[lastAction]?.label} {c.actionReady}</span>
