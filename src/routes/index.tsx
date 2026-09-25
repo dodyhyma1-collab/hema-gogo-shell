@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LanguageProvider } from "@/lib/i18n";
 import { TopNav } from "@/components/shell/top-nav";
 import { AppSidebar } from "@/components/shell/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -40,9 +39,5 @@ function Dashboard() {
 }
 
 function HomePage() {
-  return (
-    <LanguageProvider>
-      <Dashboard />
-    </LanguageProvider>
-  );
+  return <Dashboard />;
 }
