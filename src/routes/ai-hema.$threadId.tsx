@@ -3,7 +3,6 @@ import { EvolutionWorkspace } from "@/components/ai-hema/evolution-workspace";
 import { AppSidebar } from "@/components/shell/app-sidebar";
 import { TopNav } from "@/components/shell/top-nav";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { LanguageProvider } from "@/lib/i18n";
 
 export const Route = createFileRoute("/ai-hema/$threadId")({
   head: () => ({
@@ -22,14 +21,12 @@ export const Route = createFileRoute("/ai-hema/$threadId")({
 function AiHemaPage() {
   const { threadId } = Route.useParams();
   return (
-    <LanguageProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset className="h-svh min-w-0 overflow-hidden bg-secondary/30">
-          <TopNav />
-          <EvolutionWorkspace key={threadId} threadId={threadId} />
-        </SidebarInset>
-      </SidebarProvider>
-    </LanguageProvider>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset className="h-svh min-w-0 overflow-hidden bg-secondary/30">
+        <TopNav />
+        <EvolutionWorkspace key={threadId} threadId={threadId} />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
