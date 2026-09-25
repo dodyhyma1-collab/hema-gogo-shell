@@ -45,7 +45,7 @@ export const defaultRuntimeConfig: RuntimeConfig = {
   showAuditLog: true,
 };
 
-export function makeThread(id = crypto.randomUUID()): AiHemaThread {
+export function makeThread(id: string = crypto.randomUUID()): AiHemaThread {
   return {
     id,
     title: "New evolution session",
@@ -80,8 +80,8 @@ export function readRuntimeConfig(): RuntimeConfig {
 
 export function applyRuntimeConfig(config: RuntimeConfig) {
   localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-  document.documentElement.dataset.hemaTheme = config.theme;
-  document.documentElement.dataset.hemaDensity = config.density;
+  document.documentElement.dataset["hemaTheme"] = config.theme;
+  document.documentElement.dataset["hemaDensity"] = config.density;
   window.dispatchEvent(new CustomEvent(RUNTIME_EVENT, { detail: config }));
 }
 
