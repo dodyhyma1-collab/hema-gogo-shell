@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { applyRuntimeConfig, readRuntimeConfig } from "../lib/ai-hema-runtime";
 
 function NotFoundComponent() {
   return (
@@ -115,6 +116,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    applyRuntimeConfig(readRuntimeConfig());
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

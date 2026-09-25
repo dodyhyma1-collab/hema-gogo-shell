@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Bot,
   Boxes,
@@ -47,7 +48,9 @@ const navigationItems: NavigationItem[] = [
 export function AppSidebar() {
   const { lang, t } = useLanguage();
   const { isMobile, setOpenMobile } = useSidebar();
-  const [activeItem, setActiveItem] = useState("assistant");
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [activeItem, setActiveItem] = useState(pathname.startsWith("/ai-hema/") ? "assistant" : "");
 
   return (
     <Sidebar side={lang === "ar" ? "right" : "left"} collapsible="icon">
@@ -80,6 +83,9 @@ export function AppSidebar() {
                       }}
                       onClick={() => {
                         setActiveItem(item.id);
+                        if (item.id === "assistant") {
+                          navigate({ to: "/ai-hema/$threadId", params: { threadId: crypto.randomUUID() } });
+                        }
                         if (isMobile) setOpenMobile(false);
                       }}
                       className="h-10 gap-3 px-2.5 text-sidebar-foreground/75 transition-colors data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
