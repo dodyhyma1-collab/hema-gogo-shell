@@ -1,0 +1,5 @@
+## Requested
+- [ ] Rename “Hema Gogo Shell” branding to “Hema Gogo”
+- [ ] Add natural-language runtime UI configuration commands
+- [ ] Add Code & Config Generation Hub
+- [ ] Add Self-Evolution Audit Log with approval actions
