@@ -10,6 +10,7 @@ import {
   ScanSearch,
   Settings2,
   WalletCards,
+  Workflow,
   type LucideIcon,
 } from "lucide-react";
 import { useLanguage, type TKey } from "@/lib/i18n";
@@ -37,6 +38,7 @@ const navigationItems: NavigationItem[] = [
   { id: "assistant", label: "aiAssistant", icon: Bot },
   { id: "inbox", label: "multiChannelInbox", icon: MessageSquareText },
   { id: "leads", label: "leadDiscovery", icon: ScanSearch },
+  { id: "automations", label: "automationWorkflows", icon: Workflow },
   { id: "pipeline", label: "salesPipeline", icon: Kanban },
   { id: "logistics", label: "logisticsShipping", icon: Boxes },
   { id: "wallets", label: "instapayWallets", icon: WalletCards },
@@ -51,7 +53,10 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [activeItem, setActiveItem] = useState(
-    pathname.startsWith("/ai-hema/") ? "assistant" : pathname.startsWith("/inbox") ? "inbox" : "",
+    pathname.startsWith("/ai-hema/") ? "assistant"
+      : pathname.startsWith("/inbox") ? "inbox"
+      : pathname.startsWith("/leads") ? "leads"
+      : pathname.startsWith("/automations") ? "automations" : "",
   );
 
   return (
@@ -89,6 +94,8 @@ export function AppSidebar() {
                           navigate({ to: "/ai-hema/$threadId", params: { threadId: crypto.randomUUID() } });
                         }
                         if (item.id === "inbox") navigate({ to: "/inbox" });
+                        if (item.id === "leads") navigate({ to: "/leads" });
+                        if (item.id === "automations") navigate({ to: "/automations" });
                         if (isMobile) setOpenMobile(false);
                       }}
                       className="h-10 gap-3 px-2.5 text-sidebar-foreground/75 transition-colors data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
