@@ -50,7 +50,9 @@ export function AppSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const [activeItem, setActiveItem] = useState(pathname.startsWith("/ai-hema/") ? "assistant" : "");
+  const [activeItem, setActiveItem] = useState(
+    pathname.startsWith("/ai-hema/") ? "assistant" : pathname.startsWith("/inbox") ? "inbox" : "",
+  );
 
   return (
     <Sidebar side={lang === "ar" ? "right" : "left"} collapsible="icon">
@@ -86,6 +88,7 @@ export function AppSidebar() {
                         if (item.id === "assistant") {
                           navigate({ to: "/ai-hema/$threadId", params: { threadId: crypto.randomUUID() } });
                         }
+                        if (item.id === "inbox") navigate({ to: "/inbox" });
                         if (isMobile) setOpenMobile(false);
                       }}
                       className="h-10 gap-3 px-2.5 text-sidebar-foreground/75 transition-colors data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
