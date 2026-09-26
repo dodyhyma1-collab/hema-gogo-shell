@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as AiHemaThreadIdRouteImport } from './routes/ai-hema.$threadId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiHemaThreadIdRoute = AiHemaThreadIdRouteImport.update({
@@ -25,27 +31,31 @@ const AiHemaThreadIdRoute = AiHemaThreadIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/inbox': typeof InboxRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/inbox': typeof InboxRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/inbox': typeof InboxRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ai-hema/$threadId'
+  fullPaths: '/' | '/inbox' | '/ai-hema/$threadId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ai-hema/$threadId'
-  id: '__root__' | '/' | '/ai-hema/$threadId'
+  to: '/' | '/inbox' | '/ai-hema/$threadId'
+  id: '__root__' | '/' | '/inbox' | '/ai-hema/$threadId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  InboxRoute: typeof InboxRoute
   AiHemaThreadIdRoute: typeof AiHemaThreadIdRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-hema/$threadId': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InboxRoute: InboxRoute,
   AiHemaThreadIdRoute: AiHemaThreadIdRoute,
 }
 export const routeTree = rootRouteImport
