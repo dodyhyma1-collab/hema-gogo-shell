@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AutomationsRouteImport } from './routes/automations'
 import { Route as InboxRouteImport } from './routes/inbox'
+import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as AiHemaThreadIdRouteImport } from './routes/ai-hema.$threadId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -18,9 +20,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AutomationsRoute = AutomationsRouteImport.update({
+  id: '/automations',
+  path: '/automations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InboxRoute = InboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeadsRoute = LeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiHemaThreadIdRoute = AiHemaThreadIdRouteImport.update({
@@ -31,31 +43,45 @@ const AiHemaThreadIdRoute = AiHemaThreadIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/automations': typeof AutomationsRoute
   '/inbox': typeof InboxRoute
+  '/leads': typeof LeadsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/automations': typeof AutomationsRoute
   '/inbox': typeof InboxRoute
+  '/leads': typeof LeadsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/automations': typeof AutomationsRoute
   '/inbox': typeof InboxRoute
+  '/leads': typeof LeadsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/inbox' | '/ai-hema/$threadId'
+  fullPaths: '/' | '/automations' | '/inbox' | '/leads' | '/ai-hema/$threadId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/inbox' | '/ai-hema/$threadId'
-  id: '__root__' | '/' | '/inbox' | '/ai-hema/$threadId'
+  to: '/' | '/automations' | '/inbox' | '/leads' | '/ai-hema/$threadId'
+  id:
+    | '__root__'
+    | '/'
+    | '/automations'
+    | '/inbox'
+    | '/leads'
+    | '/ai-hema/$threadId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AutomationsRoute: typeof AutomationsRoute
   InboxRoute: typeof InboxRoute
+  LeadsRoute: typeof LeadsRoute
   AiHemaThreadIdRoute: typeof AiHemaThreadIdRoute
 }
 
@@ -68,11 +94,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/automations': {
+      id: '/automations'
+      path: '/automations'
+      fullPath: '/automations'
+      preLoaderRoute: typeof AutomationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inbox': {
       id: '/inbox'
       path: '/inbox'
       fullPath: '/inbox'
       preLoaderRoute: typeof InboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leads': {
+      id: '/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof LeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-hema/$threadId': {
@@ -87,7 +127,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AutomationsRoute: AutomationsRoute,
   InboxRoute: InboxRoute,
+  LeadsRoute: LeadsRoute,
   AiHemaThreadIdRoute: AiHemaThreadIdRoute,
 }
 export const routeTree = rootRouteImport
