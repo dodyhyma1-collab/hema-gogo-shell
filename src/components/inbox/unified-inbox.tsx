@@ -145,7 +145,7 @@ export function UnifiedInbox() {
         <ul className="flex-1 overflow-y-auto">
           {list.length === 0 && <li className="p-6 text-center text-sm text-muted-foreground">{c.empty}</li>}
           {list.map((x) => {
-            const last = x.messages[x.messages.length - 1];
+            const last = x.messages[x.messages.length - 1] ?? { text: "", time: "" };
             return (
               <li key={x.id}>
                 <button onClick={() => open(x.id)} className={cn("flex w-full items-start gap-3 border-b p-3 text-start transition-colors hover:bg-muted/60", activeId === x.id && "bg-muted")}>
