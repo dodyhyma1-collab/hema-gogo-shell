@@ -57,7 +57,7 @@ export function LeadDiscovery() {
     setScanning(true);
     setTimeout(() => {
       const picked: Lead[] = extra.filter((e) => srcs.includes(e.source)).map((e) => ({ ...e, id: crypto.randomUUID(), city: loc || e.city }));
-      const add: Lead[] = picked.length ? picked : [{ ...extra[0], id: crypto.randomUUID() }];
+      const add: Lead[] = picked.length ? picked : [{ ...extra[0]!, id: crypto.randomUUID() }];
       setLeads((l) => [...add, ...l]);
       setScanning(false);
       toast.success(`${add.length} ${t.found}`);
