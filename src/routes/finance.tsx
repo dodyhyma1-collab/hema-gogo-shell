@@ -5,7 +5,7 @@ import { TopNav } from "@/components/shell/top-nav";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/finance")({
-  validateSearch: (s: Record<string, unknown>) => ({ tab: typeof s.tab === "string" ? s.tab : undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ tab: typeof s['tab'] === "string" ? s['tab'] : undefined }),
   head: () => ({
     meta: [
       { title: "Financial Verification & Payments — Hema Gogo" },
