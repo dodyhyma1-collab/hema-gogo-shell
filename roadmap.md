@@ -9,5 +9,5 @@
 - [x] InstaPay OCR verification, gateways, e-invoicing (/finance)
 
 ## Phase 9 — Logistics & Approvals
-- [ ] Bosta/Aramex dispatch hub with tracking + AWB generator
-- [ ] Human-in-the-loop approval queue with approve/reject + client notifications
+- [x] Bosta/Aramex dispatch hub with tracking + AWB generator
+- [x] Human-in-the-loop approval queue with approve/reject + client notifications
