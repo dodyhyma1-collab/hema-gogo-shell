@@ -51,7 +51,7 @@ export function DispatchHub() {
   const [form, setForm] = useState({ carrier: "bosta" as Carrier, customer: "", city: "Cairo", phone: "", cod: "0", weight: "1" });
 
   const advance = () =>
-    setList((a) => a.map((s) => (s.step !== "delivered" && Math.random() < 0.4 ? { ...s, step: steps[steps.indexOf(s.step) + 1], updated: now() } : s)));
+    setList((a) => a.map((s) => (s.step !== "delivered" && Math.random() < 0.4 ? { ...s, step: steps[steps.indexOf(s.step) + 1] ?? "delivered", updated: now() } : s)));
 
   useEffect(() => {
     if (!auto) return;

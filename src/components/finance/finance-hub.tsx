@@ -192,7 +192,7 @@ function GatewaysPanel() {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {gateways.map((g) => {
-        const s = state[g.id];
+        const s = state[g.id] ?? { on: false, test: true };
         return (
           <section key={g.id} className="flex flex-col gap-3 rounded-xl border bg-card p-4">
             <div className="flex items-center justify-between">
