@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Status = "verified" | "pending" | "rejected";
-type Receipt = { id: string; sender: string; reference: string; amount: number; date: string; invoice: string | null; status: Status; reason?: string };
+type Receipt = { id: string; sender: string; reference: string; amount: number; date: string; invoice: string | null; status: Status; reason?: string | undefined };
 type Invoice = { id: string; customer: string; amount: number; paid: boolean };
 
 const c = {
@@ -90,7 +90,7 @@ function OcrPanel() {
     setScanning(true);
     setDraft(null);
     setTimeout(() => {
-      const s = samples[n % samples.length];
+      const s = samples[n % samples.length]!;
       setN(n + 1);
       setDraft({ sender: s.sender, reference: `IPN${Math.floor(88220000 + Math.random() * 9999)}`, amount: String(s.amount), date: new Date().toISOString().slice(0, 10) });
       setScanning(false);
