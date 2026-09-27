@@ -96,6 +96,8 @@ export function AppSidebar() {
                         if (item.id === "inbox") navigate({ to: "/inbox" });
                         if (item.id === "leads") navigate({ to: "/leads" });
                         if (item.id === "automations") navigate({ to: "/automations" });
+                        if (item.id === "wallets") navigate({ to: "/finance", search: { tab: "ocr" } });
+                        if (item.id === "payments") navigate({ to: "/finance", search: { tab: "invoices" } });
                         if (isMobile) setOpenMobile(false);
                       }}
                       className="h-10 gap-3 px-2.5 text-sidebar-foreground/75 transition-colors data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
