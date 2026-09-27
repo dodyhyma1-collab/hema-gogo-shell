@@ -41,6 +41,7 @@ const navigationItems: NavigationItem[] = [
   { id: "automations", label: "automationWorkflows", icon: Workflow },
   { id: "pipeline", label: "salesPipeline", icon: Kanban },
   { id: "logistics", label: "logisticsShipping", icon: Boxes },
+  { id: "approvals", label: "approvalCenter", icon: ShieldCheck },
   { id: "wallets", label: "instapayWallets", icon: WalletCards },
   { id: "payments", label: "paymentsInvoices", icon: CreditCard },
   { id: "signatures", label: "eSignatures", icon: FileSignature },
@@ -96,6 +97,8 @@ export function AppSidebar() {
                         if (item.id === "inbox") navigate({ to: "/inbox" });
                         if (item.id === "leads") navigate({ to: "/leads" });
                         if (item.id === "automations") navigate({ to: "/automations" });
+                        if (item.id === "logistics") navigate({ to: "/logistics" });
+                        if (item.id === "approvals") navigate({ to: "/approvals" });
                         if (item.id === "wallets") navigate({ to: "/finance", search: { tab: "ocr" } });
                         if (item.id === "payments") navigate({ to: "/finance", search: { tab: "invoices" } });
                         if (isMobile) setOpenMobile(false);
