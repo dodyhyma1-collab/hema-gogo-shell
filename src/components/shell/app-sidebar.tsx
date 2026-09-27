@@ -3,6 +3,7 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Bot,
   Boxes,
+  ShieldCheck,
   CreditCard,
   FileSignature,
   Kanban,
