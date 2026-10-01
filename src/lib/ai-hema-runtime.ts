@@ -48,7 +48,7 @@ export const defaultRuntimeConfig: RuntimeConfig = {
 export function makeThread(id: string = crypto.randomUUID()): AiHemaThread {
   return {
     id,
-    title: "New evolution session",
+    title: "New conversation",
     updatedAt: new Date().toISOString(),
     messages: [],
     audit: [],
@@ -122,4 +122,13 @@ export function createEvolutionChange(command: string, patch: Partial<RuntimeCon
     componentCode,
     configJson,
   };
+}
+
+export const MEMORY_KEY = "hema-gogo-ai-memory-v1";
+export function readMemories(): string[] {
+  if (typeof window === "undefined") return [];
+  try { const v = JSON.parse(localStorage.getItem(MEMORY_KEY) ?? "[]"); return Array.isArray(v) ? v.filter((x) => typeof x === "string") : []; } catch { return []; }
+}
+export function writeMemories(list: string[]) {
+  localStorage.setItem(MEMORY_KEY, JSON.stringify(list));
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import type { ChatStatus, UIMessage } from "ai";
+import type { UIMessage } from "ai";
+import { ChatPane } from "./chat-pane";
 import {
   Check,
   CheckCircle2,
@@ -37,6 +38,8 @@ import {
   parseEvolutionCommand,
   readRuntimeConfig,
   readThreads,
+  readMemories,
+  writeMemories,
   writeThreads,
   type AiHemaThread,
   type EvolutionChange,
@@ -59,7 +62,7 @@ const promptSuggestions = {
 const copy = {
   en: {
     title: "AI Hema",
-    subtitle: "Governed workspace evolution",
+    subtitle: "General AI & executive employee",
     conversations: "Conversations",
     newConversation: "New conversation",
     emptyTitle: "Direct your workspace",
@@ -86,7 +89,7 @@ const copy = {
   },
   ar: {
     title: "هيما الذكي",
-    subtitle: "تطوير مُحكَم لمساحة العمل",
+    subtitle: "ذكاء عام وموظف تنفيذي",
     conversations: "المحادثات",
     newConversation: "محادثة جديدة",
     emptyTitle: "وجّه مساحة عملك",
@@ -131,7 +134,7 @@ export function EvolutionWorkspace({ threadId }: { threadId: string }) {
   const [threads, setThreads] = useState<AiHemaThread[]>([]);
   const [config, setConfig] = useState<RuntimeConfig>(defaultRuntimeConfig);
   const [ready, setReady] = useState(false);
-  const [status, setStatus] = useState<ChatStatus>("ready");
+  const [memories, setMemories] = useState<string[]>([]);
   const [selectedChangeId, setSelectedChangeId] = useState<string | null>(null);
   const [mobilePanel, setMobilePanel] = useState<"threads" | "audit" | null>(null);
 
@@ -143,6 +146,7 @@ export function EvolutionWorkspace({ threadId }: { threadId: string }) {
     setThreads(next);
     const runtime = readRuntimeConfig();
     setConfig(runtime);
+    setMemories(readMemories());
     applyRuntimeConfig(runtime);
     setReady(true);
   }, [threadId]);
@@ -162,29 +166,40 @@ export function EvolutionWorkspace({ threadId }: { threadId: string }) {
     persistThreads((current) => current.map((thread) => thread.id === threadId ? updater(thread) : thread));
   }, [persistThreads, threadId]);
 
-  const submitCommand = useCallback(async (text: string) => {
-    const command = text.trim();
-    if (!command || status !== "ready") return;
-    const patch = parseEvolutionCommand(command);
-    const change = createEvolutionChange(command, patch);
+  const stageCommand = useCallback((text: string) => {
+    const patch = parseEvolutionCommand(text);
+    if (Object.keys(patch).length === 0) return;
+    const change = createEvolutionChange(text, patch);
     setSelectedChangeId(change.id);
-    setStatus("submitted");
-    updateActiveThread((thread) => ({
-      ...thread,
-      title: thread.messages.length === 0 ? command.slice(0, 42) : thread.title,
-      updatedAt: new Date().toISOString(),
-      messages: [...thread.messages, textMessage("user", command)],
-      audit: [change, ...thread.audit],
-    }));
-    await new Promise((resolve) => window.setTimeout(resolve, 550));
-    updateActiveThread((thread) => ({
-      ...thread,
-      updatedAt: new Date().toISOString(),
-      messages: [...thread.messages, textMessage("assistant", `${labels.staged}\n\n${Object.keys(patch).length === 0 ? labels.structural : `**${change.title}**\n\n${change.summary}`}`)],
-    }));
-    setStatus("ready");
-    window.setTimeout(() => inputRef.current?.focus(), 0);
-  }, [labels.staged, labels.structural, status, updateActiveThread]);
+    updateActiveThread((thread) => ({ ...thread, audit: [change, ...thread.audit] }));
+  }, [updateActiveThread]);
+
+  const saveMessages = useCallback((messages: UIMessage[]) => {
+    updateActiveThread((thread) => {
+      if (thread.messages.length === messages.length && thread.messages.at(-1)?.id === messages.at(-1)?.id && JSON.stringify(thread.messages.at(-1)) === JSON.stringify(messages.at(-1))) return thread;
+      const firstUser = messages.find((m) => m.role === "user");
+      const firstText = firstUser?.parts.find((p) => p.type === "text");
+      return {
+        ...thread,
+        title: thread.messages.length === 0 && firstText && "text" in firstText ? firstText.text.slice(0, 42) : thread.title,
+        updatedAt: messages.length !== thread.messages.length ? new Date().toISOString() : thread.updatedAt,
+        messages,
+      };
+    });
+  }, [updateActiveThread]);
+
+  const remember = useCallback((fact: string) => {
+    setMemories((current) => {
+      if (current.includes(fact)) return current;
+      const next = [fact, ...current].slice(0, 50);
+      writeMemories(next);
+      return next;
+    });
+  }, []);
+
+  const forget = (fact: string) => {
+    setMemories((current) => { const next = current.filter((m) => m !== fact); writeMemories(next); return next; });
+  };
 
   const changeStatus = (change: EvolutionChange, nextStatus: "applied" | "rejected") => {
     updateActiveThread((thread) => ({
@@ -240,6 +255,7 @@ export function EvolutionWorkspace({ threadId }: { threadId: string }) {
       <div className="border-b border-border p-4">
         <div className="flex items-center justify-between gap-2"><div className="flex items-center gap-2"><History className="size-4 text-primary" /><p className="text-sm font-semibold">{labels.audit}</p></div><Badge variant="outline">{activeThread?.audit.filter((item) => item.status === "pending").length ?? 0}</Badge></div>
         <div className="mt-3 rounded-md border border-border bg-background p-3"><p className="text-xs font-semibold text-muted-foreground">{labels.activeConfig}</p><dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">{configRows.map(([term, value]) => <div key={term} className="contents"><dt className="text-muted-foreground">{term}</dt><dd className="truncate text-end font-medium">{value}</dd></div>)}</dl></div>
+        <div className="mt-3 rounded-md border border-border bg-background p-3"><p className="text-xs font-semibold text-muted-foreground">{lang === "ar" ? "ذاكرة هيما" : "AI Hema memory"} ({memories.length})</p>{memories.length ? <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto text-xs">{memories.map((m) => <li key={m} className="flex items-start gap-2"><span className="min-w-0 flex-1">{m}</span><button className="text-muted-foreground hover:text-foreground" onClick={() => forget(m)} aria-label="Forget"><X className="size-3" /></button></li>)}</ul> : <p className="mt-1 text-xs text-muted-foreground">{lang === "ar" ? "اطلب من هيما أن يتذكر أي معلومة." : "Ask AI Hema to remember anything."}</p>}</div>
       </div>
       <ScrollArea className="min-h-0 flex-1 p-3">
         {activeThread?.audit.length ? <div className="space-y-3">{activeThread.audit.map((change) => (
@@ -264,22 +280,17 @@ export function EvolutionWorkspace({ threadId }: { threadId: string }) {
 
       <div className="grid min-h-0 flex-1 lg:grid-cols-[230px_minmax(0,1fr)_310px]">
         <div className="hidden min-h-0 lg:block">{threadsPanel}</div>
-        <section className="flex min-h-0 min-w-0 flex-col">
-          <Conversation className="min-h-0"><ConversationContent className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
-            {activeThread.messages.length === 0 ? <ConversationEmptyState title={labels.emptyTitle} description={labels.emptyDescription} icon={<span className="grid size-12 place-items-center rounded-md bg-primary text-lg font-black text-primary-foreground">H</span>} /> : activeThread.messages.map((message) => {
-              const text = message.parts.filter((part) => part.type === "text").map((part) => part.text).join("");
-              return <Message from={message.role} key={message.id}><MessageContent><MessageResponse>{text}</MessageResponse></MessageContent></Message>;
-            })}
-            {status === "submitted" && <Message from="assistant"><MessageContent><Shimmer>{lang === "ar" ? "يُنشئ اقتراحاً آمناً…" : "Generating a governed proposal…"}</Shimmer></MessageContent></Message>}
-          </ConversationContent><ConversationScrollButton /></Conversation>
-
-          <div className="border-t border-border bg-background p-3 sm:p-4">
-            <div className="mx-auto max-w-3xl">
-              {config.showQuickPrompts && activeThread.messages.length === 0 && <div className="mb-3 flex gap-2 overflow-x-auto pb-1">{promptSuggestions[lang].map((item) => <Button key={item.label} variant="outline" size="sm" className="shrink-0" onClick={() => submitCommand(item.prompt)}><item.icon />{item.label}</Button>)}</div>}
-              <PromptInput onSubmit={({ text }) => submitCommand(text)}><PromptInputTextarea ref={inputRef} autoFocus placeholder={labels.prompt} disabled={status !== "ready"} /><PromptInputFooter><PromptInputTools><Badge variant="outline" className="gap-1"><ShieldCheck className="size-3" />{labels.safe}</Badge></PromptInputTools><PromptInputSubmit status={status} disabled={status !== "ready"} /></PromptInputFooter></PromptInput>
-            </div>
-          </div>
-        </section>
+        <ChatPane
+          key={threadId}
+          threadId={threadId}
+          lang={lang}
+          initialMessages={activeThread.messages}
+          memories={memories}
+          showSuggestions={config.showQuickPrompts}
+          onMessages={saveMessages}
+          onCommand={stageCommand}
+          onRemember={remember}
+        />
         <div className="hidden min-h-0 lg:block">{auditPanel}</div>
       </div>
 
