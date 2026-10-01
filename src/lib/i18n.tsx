@@ -46,6 +46,11 @@ const dict = {
     eSignatures: "E-Signatures",
     settingsRbac: "Settings & RBAC",
     toggleSidebar: "Toggle sidebar",
+    dashboard: "Dashboard",
+    demoOn: "Demo data: on",
+    demoOff: "Demo data: off",
+    demoFill: "Fill sample Egyptian data",
+    demoClear: "Clear sample data",
   },
   ar: {
     appName: "هيما جوجو",
@@ -82,6 +87,11 @@ const dict = {
     eSignatures: "التوقيعات الإلكترونية",
     settingsRbac: "الإعدادات والصلاحيات",
     toggleSidebar: "فتح أو إغلاق القائمة الجانبية",
+    dashboard: "لوحة التحكم",
+    demoOn: "بيانات تجريبية: مفعّلة",
+    demoOff: "بيانات تجريبية: متوقفة",
+    demoFill: "تعبئة بيانات مصرية تجريبية",
+    demoClear: "مسح البيانات التجريبية",
   },
 } as const;
 

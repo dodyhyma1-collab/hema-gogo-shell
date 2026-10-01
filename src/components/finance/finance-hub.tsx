@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { CheckCircle2, Clock, FileText, Loader2, Plus, Printer, ScanLine, Trash2, Upload, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/lib/i18n";
+import { useDemoSync } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -79,6 +80,10 @@ function OcrPanel() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [invoices, setInvoices] = useState(seedInvoices);
   const [receipts, setReceipts] = useState(seedReceipts);
+  useDemoSync(
+    () => { setInvoices(seedInvoices); setReceipts(seedReceipts); },
+    () => { setInvoices([]); setReceipts([]); },
+  );
   const [preview, setPreview] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [draft, setDraft] = useState<{ sender: string; reference: string; amount: string; date: string } | null>(null);

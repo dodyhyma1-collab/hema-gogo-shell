@@ -11,3 +11,8 @@
 ## Phase 9 — Logistics & Approvals
 - [x] Bosta/Aramex dispatch hub with tracking + AWB generator
 - [x] Human-in-the-loop approval queue with approve/reject + client notifications
+
+## Phase 10 — Polish
+- [x] Sidebar links + active states for all modules (incl. Dashboard)
+- [x] Translation keys, RTL/LTR
+- [x] Demo data toggle (leads, invoices, receipts, shipments)

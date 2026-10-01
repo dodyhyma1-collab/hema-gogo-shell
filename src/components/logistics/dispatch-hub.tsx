@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { PackagePlus, RefreshCw, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/lib/i18n";
+import { useDemoSync } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ export function DispatchHub() {
   const { lang } = useLanguage();
   const t = c[lang];
   const [list, setList] = useState(seed);
+  useDemoSync(() => setList(seed), () => setList([]));
   const [auto, setAuto] = useState(true);
   const [filter, setFilter] = useState<"all" | Carrier>("all");
   const [form, setForm] = useState({ carrier: "bosta" as Carrier, customer: "", city: "Cairo", phone: "", cod: "0", weight: "1" });
