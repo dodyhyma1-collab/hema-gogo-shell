@@ -7,6 +7,7 @@ import {
   CreditCard,
   FileSignature,
   Kanban,
+  LayoutDashboard,
   MessageSquareText,
   ScanSearch,
   Settings2,
@@ -36,6 +37,7 @@ type NavigationItem = {
 };
 
 const navigationItems: NavigationItem[] = [
+  { id: "dashboard", label: "dashboard", icon: LayoutDashboard },
   { id: "assistant", label: "aiAssistant", icon: Bot },
   { id: "inbox", label: "multiChannelInbox", icon: MessageSquareText },
   { id: "leads", label: "leadDiscovery", icon: ScanSearch },
@@ -53,13 +55,21 @@ export function AppSidebar() {
   const { lang, t } = useLanguage();
   const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const [activeItem, setActiveItem] = useState(
-    pathname.startsWith("/ai-hema/") ? "assistant"
+  const { pathname, tab } = useRouterState({
+    select: (s) => ({ pathname: s.location.pathname, tab: (s.location.search as { tab?: string }).tab }),
+  });
+  const routeActive =
+    pathname === "/" ? "dashboard"
+      : pathname.startsWith("/ai-hema/") ? "assistant"
       : pathname.startsWith("/inbox") ? "inbox"
       : pathname.startsWith("/leads") ? "leads"
-      : pathname.startsWith("/automations") ? "automations" : "",
-  );
+      : pathname.startsWith("/automations") ? "automations"
+      : pathname.startsWith("/logistics") ? "logistics"
+      : pathname.startsWith("/approvals") ? "approvals"
+      : pathname.startsWith("/finance") ? (tab === "ocr" ? "wallets" : "payments")
+      : "";
+  const [picked, setActiveItem] = useState<string | null>(null);
+  const activeItem = picked && !routeActive ? picked : routeActive;
 
   return (
     <Sidebar side={lang === "ar" ? "right" : "left"} collapsible="icon">
@@ -92,6 +102,7 @@ export function AppSidebar() {
                       }}
                       onClick={() => {
                         setActiveItem(item.id);
+                        if (item.id === "dashboard") navigate({ to: "/" });
                         if (item.id === "assistant") {
                           navigate({ to: "/ai-hema/$threadId", params: { threadId: crypto.randomUUID() } });
                         }

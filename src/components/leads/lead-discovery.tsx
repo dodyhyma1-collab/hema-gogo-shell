@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Globe, Loader2, MapPin, Search, Sparkles, Target, TrendingUp, Users, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/lib/i18n";
+import { useDemoSync } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export function LeadDiscovery() {
   const { lang } = useLanguage();
   const t = c[lang];
   const [leads, setLeads] = useState(seed);
+  useDemoSync(() => setLeads(seed), () => setLeads([]));
   const [filter, setFilter] = useState("all");
   const [kw, setKw] = useState("");
   const [loc, setLoc] = useState("");

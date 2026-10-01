@@ -5,6 +5,7 @@ import {
   Check,
   ChevronsUpDown,
   CreditCard,
+  Database,
   Globe,
   LogOut,
   Search,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { tenants, type Tenant } from "@/lib/tenants";
 import { useLanguage } from "@/lib/i18n";
+import { useDemoData } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -213,6 +215,7 @@ function ProfileMenu() {
 
 export function TopNav() {
   const { t, toggle } = useLanguage();
+  const demo = useDemoData();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
@@ -249,6 +252,18 @@ export function TopNav() {
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={demo.toggle}
+            aria-pressed={demo.on}
+            title={demo.on ? t("demoClear") : t("demoFill")}
+            className={cn(
+              "flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-sm transition-colors",
+              demo.on ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:bg-accent",
+            )}
+          >
+            <Database className="h-4 w-4" />
+            <span className="hidden lg:inline">{demo.on ? t("demoOn") : t("demoOff")}</span>
+          </button>
           <button
             onClick={toggle}
             className="flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs font-semibold text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-foreground"
