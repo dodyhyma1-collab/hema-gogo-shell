@@ -1,3 +1,4 @@
+import { setAppState, useAppState } from "@/lib/app-state";
 import { useMemo, useState } from "react";
 import { Bot, Facebook, Instagram, MessageCircle, MessageSquare, Phone, Mail, MapPin, Send, UserRound, ArrowLeft, Zap } from "lucide-react";
 import { toast } from "sonner";
@@ -71,7 +72,8 @@ export function UnifiedInbox() {
   const { lang } = useLanguage();
   const c = copy[lang];
   const [convos, setConvos] = useState(seed);
-  const [filter, setFilter] = useState<"unread" | "mine" | "all">("all");
+  const filter = useAppState((st) => st.inboxFilter);
+  const setFilter = (f: typeof filter) => setAppState({ inboxFilter: f });
   const [query, setQuery] = useState("");
   const [activeId, setActiveId] = useState<string | null>("c1");
   const [draft, setDraft] = useState("");

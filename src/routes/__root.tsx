@@ -1,3 +1,4 @@
+import { applyDarkMode, getAppState } from "@/lib/app-state";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -121,6 +122,7 @@ function RootComponent() {
 
   useEffect(() => {
     applyRuntimeConfig(readRuntimeConfig());
+    applyDarkMode(getAppState().darkMode);
   }, []);
 
   return (
