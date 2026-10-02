@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAppState } from "@/lib/app-state";
 import { Globe, Loader2, MapPin, Search, Sparkles, Target, TrendingUp, Users, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/lib/i18n";
@@ -45,6 +46,10 @@ export function LeadDiscovery() {
   const t = c[lang];
   const [leads, setLeads] = useState(seed);
   useDemoSync(() => setLeads(seed), () => setLeads([]));
+  const aiLeads = useAppState((st) => st.aiLeads);
+  useEffect(() => {
+    setLeads((cur) => [...aiLeads.filter((a) => !cur.some((l) => l.id === a.id)).map((a) => ({ ...a, source: "website" as Source, captured: true })), ...cur]);
+  }, [aiLeads]);
   const [filter, setFilter] = useState("all");
   const [kw, setKw] = useState("");
   const [loc, setLoc] = useState("");

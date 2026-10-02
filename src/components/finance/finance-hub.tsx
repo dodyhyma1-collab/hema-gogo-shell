@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useAppState } from "@/lib/app-state";
 import { CheckCircle2, Clock, FileText, Loader2, Plus, Printer, ScanLine, Trash2, Upload, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/lib/i18n";
@@ -84,6 +85,10 @@ function OcrPanel() {
     () => { setInvoices(seedInvoices); setReceipts(seedReceipts); },
     () => { setInvoices([]); setReceipts([]); },
   );
+  const overrides = useAppState((st) => st.invoiceStatus);
+  useEffect(() => {
+    setInvoices((cur) => cur.map((i) => (overrides[i.id] ? { ...i, paid: overrides[i.id] === "paid" } : i)).filter((i) => overrides[i.id] !== "cancelled"));
+  }, [overrides]);
   const [preview, setPreview] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [draft, setDraft] = useState<{ sender: string; reference: string; amount: string; date: string } | null>(null);

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, isToolUIPart, type UIMessage } from "ai";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
+import { executeAppAction, type AppAction } from "@/lib/app-state";
 import { Brain, Briefcase, Code2, FileText, Lightbulb, MessageCircle, PenLine, Truck } from "lucide-react";
 import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
@@ -39,6 +41,12 @@ const toolLabels: Record<string, { en: string; ar: string }> = {
   analyze_logistics: { en: "Analyzed logistics", ar: "تحليل الشحن" },
   draft_email: { en: "Drafted email", ar: "صياغة بريد" },
   save_memory: { en: "Saved to memory", ar: "حفظ في الذاكرة" },
+  set_dark_mode: { en: "Changed display mode", ar: "تغيير وضع العرض" },
+  set_theme: { en: "Changed theme", ar: "تغيير السمة" },
+  add_lead_to_app: { en: "Added lead to app", ar: "إضافة عميل للتطبيق" },
+  update_invoice_status: { en: "Updated invoice status", ar: "تحديث حالة الفاتورة" },
+  filter_inbox: { en: "Filtered inbox", ar: "تصفية الوارد" },
+  open_page: { en: "Opened page", ar: "فتح صفحة" },
 };
 
 export function ChatPane({
@@ -50,19 +58,24 @@ export function ChatPane({
   onMessages,
   onCommand,
   onRemember,
+  mode = "general",
 }: {
+  mode?: "general" | "developer";
   threadId: string;
   lang: "en" | "ar";
   initialMessages: UIMessage[];
   memories: string[];
   showSuggestions: boolean;
   onMessages: (messages: UIMessage[]) => void;
-  onCommand: (text: string) => void;
+  onCommand?: ((text: string) => void) | undefined;
   onRemember: (fact: string) => void;
 }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const memoriesRef = useRef(memories);
   memoriesRef.current = memories;
+  const navigate = useNavigate();
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
   const langRef = useRef(lang);
   langRef.current = lang;
 
@@ -70,7 +83,7 @@ export function ChatPane({
     () =>
       new DefaultChatTransport({
         api: "/api/chat",
-        body: () => ({ conversationId: threadId, lang: langRef.current, memories: memoriesRef.current }),
+        body: () => ({ conversationId: threadId, lang: langRef.current, memories: memoriesRef.current, mode: modeRef.current }),
       }),
     [threadId],
   );
@@ -91,18 +104,25 @@ export function ChatPane({
       inputRef.current?.focus();
     }
     for (const m of messages) for (const p of m.parts) {
+      if (isToolUIPart(p) && p.state === "output-available" && !seenTools.current.has(p.toolCallId) && (p.output as { appAction?: AppAction })?.appAction) {
+        seenTools.current.add(p.toolCallId);
+        if (!initialMessages.some((im) => im.id === m.id)) {
+          const msg = executeAppAction((p.output as { appAction: AppAction }).appAction, (to) => navigate({ to }));
+          toast.success(msg);
+        }
+      }
       if (isToolUIPart(p) && p.type === "tool-save_memory" && p.state === "output-available" && !seenTools.current.has(p.toolCallId)) {
         seenTools.current.add(p.toolCallId);
         const fact = (p.input as { fact?: string })?.fact;
         if (fact && !initialMessages.some((im) => im.id === m.id)) onRemember(fact);
       }
     }
-  }, [messages, busy, onMessages, onRemember, initialMessages]);
+  }, [messages, busy, onMessages, onRemember, initialMessages, navigate]);
 
   const submit = (text: string) => {
     const t = text.trim();
     if (!t || busy) return;
-    onCommand(t);
+    onCommand?.(t);
     sendMessage({ text: t });
   };
 
@@ -166,7 +186,7 @@ export function ChatPane({
         <div className="mx-auto max-w-3xl">
           {showSuggestions && messages.length === 0 && (
             <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
-              {suggestions[lang].map((s) => (
+              {suggestions[lang].filter((s) => mode === "developer" || s.icon !== Code2).map((s) => (
                 <Button key={s.label} variant="outline" size="sm" className="shrink-0" onClick={() => submit(s.prompt)}>
                   <s.icon />
                   {s.label}

@@ -14,6 +14,7 @@ const bodySchema = z.object({
   lang: z.enum(["en", "ar"]).optional(),
   memories: z.array(z.string()).optional(),
   tenant: z.string().optional(),
+  mode: z.enum(["general", "developer"]).optional(),
 });
 
 const ref = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
@@ -87,6 +88,36 @@ const businessTools = {
     inputSchema: z.object({ to: z.string(), subject: z.string(), body: z.string() }),
     execute: async (input) => ({ ok: true, draftId: ref("EM"), status: "draft_saved", ...input }),
   }),
+  set_dark_mode: tool({
+    description: "Turn the app's dark mode on or off immediately.",
+    inputSchema: z.object({ enabled: z.boolean() }),
+    execute: async ({ enabled }) => ({ ok: true, appAction: { type: "set_dark_mode", enabled } }),
+  }),
+  set_theme: tool({
+    description: "Change the app accent color theme immediately.",
+    inputSchema: z.object({ theme: z.enum(["executive", "ocean", "emerald", "graphite"]) }),
+    execute: async ({ theme }) => ({ ok: true, appAction: { type: "set_theme", theme } }),
+  }),
+  add_lead_to_app: tool({
+    description: "Add a new lead directly into the app's Lead Discovery list.",
+    inputSchema: z.object({ name: z.string(), company: z.string(), city: z.string(), score: z.number().describe("0-100 qualification score") }),
+    execute: async (input) => ({ ok: true, appAction: { type: "add_lead", ...input } }),
+  }),
+  update_invoice_status: tool({
+    description: "Change an invoice status in the app (e.g. INV-1042). Status paid, unpaid or cancelled.",
+    inputSchema: z.object({ invoiceId: z.string(), status: z.enum(["paid", "unpaid", "cancelled"]) }),
+    execute: async (input) => ({ ok: true, appAction: { type: "update_invoice_status", ...input } }),
+  }),
+  filter_inbox: tool({
+    description: "Filter the Multi-Channel Inbox (unread, mine = assigned to me, all) and open it.",
+    inputSchema: z.object({ filter: z.enum(["unread", "mine", "all"]) }),
+    execute: async ({ filter }) => ({ ok: true, appAction: { type: "filter_inbox", filter } }),
+  }),
+  open_page: tool({
+    description: "Navigate the user to an app page.",
+    inputSchema: z.object({ page: z.enum(["/", "/inbox", "/leads", "/automations", "/logistics", "/approvals", "/finance", "/agent-hub"]) }),
+    execute: async ({ page }) => ({ ok: true, appAction: { type: "navigate", page } }),
+  }),
   save_memory: tool({
     description: "Remember a durable fact or preference about the user or their business for future conversations. Use when the user shares lasting information or asks you to remember something.",
     inputSchema: z.object({ fact: z.string() }),
@@ -94,11 +125,13 @@ const businessTools = {
   }),
 };
 
-function systemPrompt(lang: string, memories: string[], tenant?: string) {
+function systemPrompt(lang: string, memories: string[], tenant?: string, mode: string = "general") {
   return `You are AI Hema, the general-purpose AI assistant and executive employee inside Hema Gogo, an Egyptian business operations platform.
 You can do anything a top general assistant can: open-ended Q&A, writing and content creation, brainstorming, code generation (use fenced code blocks), analysis and multi-step planning.
 You also act as an executive operations employee. When the user asks you to perform a business action, call the matching tool: update_crm_lead, create_invoice (EGP, 14% VAT), send_whatsapp_template, analyze_logistics, draft_email, save_memory. Write marketing content directly in your reply. Chain several tools when a task needs it, then summarize what was done with the key numbers/references.
 These tools operate on the workspace's demo environment; never claim real external delivery beyond what the tool result says.
+You have full system privileges inside the Hema Gogo app. When the user asks to change something in the app (dark mode, theme, add a lead, invoice status, inbox filter, open a page), call the matching tool (set_dark_mode, set_theme, add_lead_to_app, update_invoice_status, filter_inbox, open_page) — the change is applied instantly. Never tell the user to do it manually. Afterwards reply briefly, e.g. "Done! Changed to dark mode."
+${mode === "developer" ? "MODE: System & UI Developer. Focus on code generation, UI layout edits and config tweaks; code blocks are welcome." : "MODE: General Chat & Assistant. Act as a personal/business co-pilot. Do not output code blocks unless the user explicitly asks for code."}
 Use save_memory when the user shares durable facts or preferences.
 Reply in the user's language (default ${lang === "ar" ? "Arabic" : "English"}). Use clear markdown.
 ${tenant ? `Active workspace: ${tenant}.` : ""}
@@ -113,7 +146,7 @@ export const Route = createFileRoute("/api/chat")({
         if (!apiKey) return Response.json({ error: "AI is not configured." }, { status: 500 });
         const parsed = bodySchema.safeParse(await request.json().catch(() => null));
         if (!parsed.success) return Response.json({ error: "Invalid request." }, { status: 400 });
-        const { messages, lang = "en", memories = [], tenant } = parsed.data;
+        const { messages, lang = "en", memories = [], tenant, mode = "general" } = parsed.data;
 
         const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(request));
         const provider = createOpenAI({
@@ -125,7 +158,7 @@ export const Route = createFileRoute("/api/chat")({
 
         const result = streamText({
           model: provider.responses("openai/gpt-6-astra"),
-          system: systemPrompt(lang, memories.slice(0, 50), tenant),
+          system: systemPrompt(lang, memories.slice(0, 50), tenant, mode),
           messages: await convertToModelMessages(messages as UIMessage[]),
           tools: businessTools,
           stopWhen: stepCountIs(50),

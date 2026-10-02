@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Bot,
+  BotMessageSquare,
   Boxes,
   ShieldCheck,
   CreditCard,
@@ -45,6 +46,7 @@ const navigationItems: NavigationItem[] = [
   { id: "pipeline", label: "salesPipeline", icon: Kanban },
   { id: "logistics", label: "logisticsShipping", icon: Boxes },
   { id: "approvals", label: "approvalCenter", icon: ShieldCheck },
+  { id: "agentHub", label: "agentHub", icon: BotMessageSquare },
   { id: "wallets", label: "instapayWallets", icon: WalletCards },
   { id: "payments", label: "paymentsInvoices", icon: CreditCard },
   { id: "signatures", label: "eSignatures", icon: FileSignature },
@@ -66,6 +68,7 @@ export function AppSidebar() {
       : pathname.startsWith("/automations") ? "automations"
       : pathname.startsWith("/logistics") ? "logistics"
       : pathname.startsWith("/approvals") ? "approvals"
+      : pathname.startsWith("/agent-hub") ? "agentHub"
       : pathname.startsWith("/finance") ? (tab === "ocr" ? "wallets" : "payments")
       : "";
   const [picked, setActiveItem] = useState<string | null>(null);
@@ -111,6 +114,7 @@ export function AppSidebar() {
                         if (item.id === "automations") navigate({ to: "/automations" });
                         if (item.id === "logistics") navigate({ to: "/logistics" });
                         if (item.id === "approvals") navigate({ to: "/approvals" });
+                        if (item.id === "agentHub") navigate({ to: "/agent-hub" });
                         if (item.id === "wallets") navigate({ to: "/finance", search: { tab: "ocr" } });
                         if (item.id === "payments") navigate({ to: "/finance", search: { tab: "invoices" } });
                         if (isMobile) setOpenMobile(false);

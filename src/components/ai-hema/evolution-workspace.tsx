@@ -136,6 +136,8 @@ export function EvolutionWorkspace({ threadId }: { threadId: string }) {
   const [ready, setReady] = useState(false);
   const [memories, setMemories] = useState<string[]>([]);
   const [selectedChangeId, setSelectedChangeId] = useState<string | null>(null);
+  const [mode, setMode] = useState<"general" | "developer">("general");
+  const dev = mode === "developer";
   const [mobilePanel, setMobilePanel] = useState<"threads" | "audit" | null>(null);
 
   useEffect(() => {
@@ -275,10 +277,18 @@ export function EvolutionWorkspace({ threadId }: { threadId: string }) {
     <main className="flex min-h-0 flex-1 flex-col bg-secondary/30">
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-4 sm:px-6">
         <div className="flex items-center gap-3"><span className="grid size-9 place-items-center rounded-md bg-primary text-sm font-black text-primary-foreground">H</span><div><h1 className="text-base font-bold">{labels.title}</h1><p className="text-xs text-muted-foreground">{labels.subtitle}</p></div></div>
-        <div className="flex items-center gap-2 lg:hidden"><Button variant="outline" size="icon" onClick={() => setMobilePanel("threads")} aria-label={labels.conversations}><MessageSquarePlus /></Button><Button variant="outline" size="icon" onClick={() => setMobilePanel("audit")} aria-label={labels.audit}><PanelRightOpen /></Button></div>
+        <div className="flex items-center gap-2 lg:hidden"><Button variant="outline" size="icon" onClick={() => setMobilePanel("threads")} aria-label={labels.conversations}><MessageSquarePlus /></Button>{dev && <Button variant="outline" size="icon" onClick={() => setMobilePanel("audit")} aria-label={labels.audit}><PanelRightOpen /></Button>}</div>
       </header>
+      <div className="flex shrink-0 justify-center border-b border-border bg-background px-4 py-2">
+        <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
+          <TabsList>
+            <TabsTrigger value="general"><MessageSquarePlus className="me-1.5 size-3.5" />{lang === "ar" ? "المحادثة العامة والمساعد" : "General Chat & Assistant"}</TabsTrigger>
+            <TabsTrigger value="developer"><Code2 className="me-1.5 size-3.5" />{lang === "ar" ? "مطوّر النظام والواجهة" : "System & UI Developer"}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-      <div className="grid min-h-0 flex-1 lg:grid-cols-[230px_minmax(0,1fr)_310px]">
+      <div className={cn("grid min-h-0 flex-1", dev ? "lg:grid-cols-[230px_minmax(0,1fr)_310px]" : "lg:grid-cols-[230px_minmax(0,1fr)]")}>
         <div className="hidden min-h-0 lg:block">{threadsPanel}</div>
         <ChatPane
           key={threadId}
@@ -288,13 +298,14 @@ export function EvolutionWorkspace({ threadId }: { threadId: string }) {
           memories={memories}
           showSuggestions={config.showQuickPrompts}
           onMessages={saveMessages}
-          onCommand={stageCommand}
+          mode={mode}
+          onCommand={dev ? stageCommand : undefined}
           onRemember={remember}
         />
-        <div className="hidden min-h-0 lg:block">{auditPanel}</div>
+        {dev && <div className="hidden min-h-0 lg:block">{auditPanel}</div>}
       </div>
 
-      {config.showGenerationHub && selectedChange && <section data-density-panel className="border-t border-border bg-background p-4 sm:p-5"><div className="mx-auto max-w-[1200px]"><div className="mb-3 flex items-center justify-between"><div><h2 className="flex items-center gap-2 text-sm font-semibold"><Code2 className="size-4 text-primary" />{labels.hub}</h2><p className="mt-0.5 text-xs text-muted-foreground">{selectedChange.summary}</p></div>{statusBadge(selectedChange, labels)}</div><Tabs defaultValue="react"><TabsList><TabsTrigger value="react"><Code2 className="me-1.5 size-3.5" />{labels.react}</TabsTrigger><TabsTrigger value="json"><FileJson2 className="me-1.5 size-3.5" />{labels.json}</TabsTrigger></TabsList><TabsContent value="react"><pre dir="ltr" className="max-h-56 overflow-auto rounded-md border border-border bg-secondary/60 p-4 text-xs leading-5"><code>{selectedChange.componentCode}</code></pre></TabsContent><TabsContent value="json"><pre dir="ltr" className="max-h-56 overflow-auto rounded-md border border-border bg-secondary/60 p-4 text-xs leading-5"><code>{selectedChange.configJson}</code></pre></TabsContent></Tabs></div></section>}
+      {dev && config.showGenerationHub && selectedChange && <section data-density-panel className="border-t border-border bg-background p-4 sm:p-5"><div className="mx-auto max-w-[1200px]"><div className="mb-3 flex items-center justify-between"><div><h2 className="flex items-center gap-2 text-sm font-semibold"><Code2 className="size-4 text-primary" />{labels.hub}</h2><p className="mt-0.5 text-xs text-muted-foreground">{selectedChange.summary}</p></div>{statusBadge(selectedChange, labels)}</div><Tabs defaultValue="react"><TabsList><TabsTrigger value="react"><Code2 className="me-1.5 size-3.5" />{labels.react}</TabsTrigger><TabsTrigger value="json"><FileJson2 className="me-1.5 size-3.5" />{labels.json}</TabsTrigger></TabsList><TabsContent value="react"><pre dir="ltr" className="max-h-56 overflow-auto rounded-md border border-border bg-secondary/60 p-4 text-xs leading-5"><code>{selectedChange.componentCode}</code></pre></TabsContent><TabsContent value="json"><pre dir="ltr" className="max-h-56 overflow-auto rounded-md border border-border bg-secondary/60 p-4 text-xs leading-5"><code>{selectedChange.configJson}</code></pre></TabsContent></Tabs></div></section>}
 
       {mobilePanel && <div className="fixed inset-0 z-50 bg-foreground/30 lg:hidden" onClick={() => setMobilePanel(null)}><div className={cn("absolute inset-y-0 w-[min(88vw,360px)] bg-background shadow-xl", lang === "ar" ? "right-0" : "left-0")} onClick={(event) => event.stopPropagation()}><Button variant="ghost" size="icon" className="absolute end-2 top-2 z-10" onClick={() => setMobilePanel(null)} aria-label="Close"><X /></Button>{mobilePanel === "threads" ? threadsPanel : auditPanel}</div></div>}
     </main>
