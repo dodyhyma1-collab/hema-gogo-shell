@@ -120,10 +120,11 @@ export function AgentHub() {
     if (autoGen) generate(job.id);
   };
 
-  const deliver = () => {
-    update(job.id, (j) => ({ ...j, stage: "delivered", chat: [...j.chat, { from: "ai", text: L("Your final logo files (SVG, PNG, PDF) were sent on WhatsApp 🎉", "تم إرسال ملفات الشعار النهائية (SVG وPNG وPDF) على واتساب 🎉") }] }));
+  const deliver = (id: string) => {
+    const target = jobs.find((x) => x.id === id)!;
+    update(id, (j) => ({ ...j, stage: "delivered", chat: [...j.chat, { from: "ai", text: L("Your final logo files (SVG, PNG, PDF) were sent on WhatsApp 🎉", "تم إرسال ملفات الشعار النهائية (SVG وPNG وPDF) على واتساب 🎉") }] }));
     setHandoffOpen(false);
-    toast.success(L(`Final files sent to ${job.phone} via WhatsApp`, `تم إرسال الملفات إلى ${job.phone} عبر واتساب`));
+    toast.success(L(`Final files sent to ${target.phone} via WhatsApp`, `تم إرسال الملفات إلى ${target.phone} عبر واتساب`));
   };
 
   const reviewCount = jobs.filter((j) => j.stage === "review").length;
@@ -250,7 +251,7 @@ export function AgentHub() {
                 {j.concepts[j.chosen ?? 0] && <img src={j.concepts[j.chosen ?? 0]} alt="Selected concept" className="mt-3 aspect-square w-full rounded-md border border-border" />}
                 <p className="mt-2 text-xs text-muted-foreground">{L("Files: logo.svg, logo.png, logo.pdf", "الملفات: logo.svg وlogo.png وlogo.pdf")}</p>
                 <div className="mt-3 flex gap-2">
-                  <Button className="flex-1" onClick={() => { setActiveId(j.id); setTimeout(deliver); }}><MessageCircle />{L("Approve & send", "موافقة وإرسال")}</Button>
+                  <Button className="flex-1" onClick={() => deliver(j.id)}><MessageCircle />{L("Approve & send", "موافقة وإرسال")}</Button>
                   <Button variant="outline" onClick={() => { update(j.id, (x) => ({ ...x, concepts: [], stage: "paid" })); toast(L("Sent back for regeneration", "أعيد للتوليد مجدداً")); }}>{L("Redo", "إعادة")}</Button>
                 </div>
               </article>
