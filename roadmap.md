@@ -16,3 +16,8 @@
 - [x] Sidebar links + active states for all modules (incl. Dashboard)
 - [x] Translation keys, RTL/LTR
 - [x] Demo data toggle (leads, invoices, receipts, shipments)
+
+## Phase 11 — AI Hema modes, action bridge, Agent Hub
+- [x] Dual-mode tabs (General Chat default / System & UI Developer)
+- [x] Action Execution Bridge (dark mode, theme, add lead, invoice status, inbox filter, navigate)
+- [x] Autonomous AI Agent & Freelance Automation Hub (/agent-hub)
