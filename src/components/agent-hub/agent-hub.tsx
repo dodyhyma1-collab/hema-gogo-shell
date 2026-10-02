@@ -16,7 +16,7 @@ type Stage = "new" | "negotiating" | "awaiting_payment" | "paid" | "designing" |
 type Msg = { from: "client" | "ai"; text: string };
 type Job = {
   id: string; client: string; phone: string; source: Source; request: string; stage: Stage;
-  brief: { colors?: string; budget?: number; deadline?: string }; price?: number; payLink?: string; chat: Msg[]; concepts: string[]; chosen?: number;
+  brief: { colors?: string; budget?: number; deadline?: string }; price?: number | undefined; payLink?: string | undefined; chat: Msg[]; concepts: string[]; chosen?: number;
 };
 
 const seed: Job[] = [
@@ -67,7 +67,7 @@ export function AgentHub() {
   const fetchLeads = () => {
     const n = jobs.length + 301;
     const sources = (Object.keys(hooks) as Source[]).filter((k) => hooks[k]);
-    if (!sources.length) return toast.error(L("Enable at least one source", "فعّل مصدراً واحداً على الأقل"));
+    if (!sources.length) { toast.error(L("Enable at least one source", "فعّل مصدراً واحداً على الأقل")); return; }
     const src = sources[n % sources.length]!;
     setJobs((cur) => [{ id: `J-${n}`, client: ["Nour Hany", "Omar Tamer", "Laila Sami"][n % 3]!, phone: `+2010${Math.floor(10000000 + Math.random() * 89999999)}`, source: src, request: L("Logo for a new bakery brand", "شعار لعلامة مخبوزات جديدة"), stage: "new", brief: {}, chat: [{ from: "client", text: L("Hello! Need a logo, what are your prices?", "أهلاً! محتاج لوجو، الأسعار كام؟") }], concepts: [] }, ...cur]);
     toast.success(L(`New inquiry from ${src}`, `استفسار جديد من ${src}`));

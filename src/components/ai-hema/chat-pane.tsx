@@ -67,7 +67,7 @@ export function ChatPane({
   memories: string[];
   showSuggestions: boolean;
   onMessages: (messages: UIMessage[]) => void;
-  onCommand?: (text: string) => void;
+  onCommand?: ((text: string) => void) | undefined;
   onRemember: (fact: string) => void;
 }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
