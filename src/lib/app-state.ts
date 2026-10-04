@@ -9,11 +9,18 @@ export type AppState = {
   inboxFilter: "unread" | "mine" | "all";
   aiLeads: AppLead[];
   invoiceStatus: Record<string, InvoiceStatus>;
+  webhookUrl: string;
+  webhookEvents: WebhookEvent[];
+  leadScoreMin: number;
+  jobKeywords: string[];
+  workflowRuns: { id: string; workflow: string; at: string }[];
 };
+export type WebhookEventName = "lead.contacted" | "lead.negotiation" | "payment.verified" | "design.export_ready" | "logo.sent_whatsapp" | "job_post.captured" | "workflow.triggered";
+export type WebhookEvent = { id: string; event: WebhookEventName; at: string; payload: Record<string, unknown>; status: "delivered" | "failed"; target: string };
 
 const KEY = "hema-gogo-app-state-v1";
 const EVENT = "hema-gogo-app-state-change";
-const initial: AppState = { darkMode: false, inboxFilter: "all", aiLeads: [], invoiceStatus: {} };
+const initial: AppState = { darkMode: false, inboxFilter: "all", aiLeads: [], invoiceStatus: {}, webhookUrl: "https://hooks.hemagogo.app/v1/out/hg_live_7f3k", webhookEvents: [], leadScoreMin: 60, jobKeywords: ["logo", "graphic designer", "branding", "لوجو", "مصمم"], workflowRuns: [] };
 let cache: AppState | null = null;
 
 export function getAppState(): AppState {
@@ -45,6 +52,14 @@ export function useAppState<T>(select: (s: AppState) => T): T {
   return useSyncExternalStore(subscribe, () => select(getAppState()), () => select(initial));
 }
 
+/** Fires an outgoing webhook (simulated delivery to the configured n8n/Make endpoint) and logs it. */
+export function emitWebhook(event: WebhookEventName, payload: Record<string, unknown>) {
+  const s = getAppState();
+  const ev: WebhookEvent = { id: `WH-${Date.now().toString(36).toUpperCase()}`, event, at: new Date().toISOString(), payload, status: s.webhookUrl.startsWith("https://") ? "delivered" : "failed", target: s.webhookUrl };
+  setAppState((x) => ({ webhookEvents: [ev, ...x.webhookEvents].slice(0, 60) }));
+  return ev;
+}
+
 /** Action Execution Bridge: applies an AI Hema app action to global state. Returns a short confirmation. */
 export type AppAction =
   | { type: "set_dark_mode"; enabled: boolean }
@@ -52,7 +67,12 @@ export type AppAction =
   | { type: "add_lead"; name: string; company: string; city: string; score: number }
   | { type: "update_invoice_status"; invoiceId: string; status: InvoiceStatus }
   | { type: "filter_inbox"; filter: AppState["inboxFilter"] }
-  | { type: "navigate"; page: string };
+  | { type: "navigate"; page: string }
+  | { type: "set_layout"; density?: "comfortable" | "compact"; showQuickPrompts?: boolean; showGenerationHub?: boolean; showAuditLog?: boolean }
+  | { type: "set_lead_scoring"; minScore: number; keywords?: string[] }
+  | { type: "trigger_workflow"; workflow: string }
+  | { type: "emit_webhook"; event: WebhookEventName; payload: Record<string, unknown> }
+  | { type: "set_webhook_url"; url: string };
 
 export function executeAppAction(action: AppAction, navigate: (path: string) => void): string {
   switch (action.type) {
@@ -77,5 +97,24 @@ export function executeAppAction(action: AppAction, navigate: (path: string) => 
     case "navigate":
       navigate(action.page);
       return `Opened ${action.page}`;
+    case "set_layout": {
+      const { type: _t, ...patch } = action;
+      const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined && v !== null));
+      applyRuntimeConfig({ ...readRuntimeConfig(), ...clean });
+      return "Layout updated";
+    }
+    case "set_lead_scoring":
+      setAppState((s) => ({ leadScoreMin: action.minScore, jobKeywords: action.keywords?.length ? action.keywords : s.jobKeywords }));
+      return `Lead threshold: ${action.minScore}`;
+    case "trigger_workflow":
+      setAppState((s) => ({ workflowRuns: [{ id: `RUN-${Date.now()}`, workflow: action.workflow, at: new Date().toISOString() }, ...s.workflowRuns].slice(0, 30) }));
+      emitWebhook("workflow.triggered", { workflow: action.workflow });
+      return `Workflow run: ${action.workflow}`;
+    case "emit_webhook":
+      emitWebhook(action.event, action.payload);
+      return `Webhook sent: ${action.event}`;
+    case "set_webhook_url":
+      setAppState({ webhookUrl: action.url });
+      return "Webhook URL updated";
   }
 }

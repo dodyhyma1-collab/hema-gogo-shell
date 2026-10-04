@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/lib/i18n";
 import { useDemoSync } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
+import { JobAggregator } from "@/components/leads/job-aggregator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,7 +59,7 @@ export function LeadDiscovery() {
   const [q, setQ] = useState("");
 
   const shown = useMemo(() => leads.filter((l) => (filter === "all" || tier(l.score) === filter) && `${l.name} ${l.company} ${l.city}`.toLowerCase().includes(q.toLowerCase())), [leads, filter, q]);
-  const avg = Math.round(leads.reduce((a, l) => a + l.score, 0) / leads.length);
+  const avg = leads.length ? Math.round(leads.reduce((a, l) => a + l.score, 0) / leads.length) : 0;
 
   const scan = () => {
     setScanning(true);
@@ -90,6 +91,8 @@ export function LeadDiscovery() {
           </article>
         ))}
       </div>
+
+      <JobAggregator />
 
       <section className="space-y-3 rounded-xl border bg-card p-4">
         <div className="grid gap-2 md:grid-cols-[1fr_200px_auto]">

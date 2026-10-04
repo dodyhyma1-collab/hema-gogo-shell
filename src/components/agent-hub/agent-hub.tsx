@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Bot, CheckCircle2, CreditCard, Facebook, FileText, Image as ImageIcon, Inbox, Instagram, Link2, MessageCircle, Send, Sparkles as Wand, UserCheck } from "lucide-react";
+import { Webhook, Download, Bot, CheckCircle2, CreditCard, Facebook, FileText, Image as ImageIcon, Inbox, Instagram, Link2, MessageCircle, Send, Sparkles as Wand, UserCheck } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
+import { emitWebhook, setAppState, useAppState } from "@/lib/app-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +62,11 @@ export function AgentHub() {
   const [handoffOpen, setHandoffOpen] = useState(false);
   const [designPrompt, setDesignPrompt] = useState("");
 
+  const [exports, setExports] = useState<{ id: string; job: string; tool: string; prompt: string; files: string; status: "queued" | "ready" | "sent" }[]>([]);
+  const [autoDispatch, setAutoDispatch] = useState(false);
+  const webhookUrl = useAppState((s) => s.webhookUrl);
+  const webhookEvents = useAppState((s) => s.webhookEvents);
+
   const job = jobs.find((j) => j.id === activeId)!;
   const update = (id: string, fn: (j: Job) => Job) => setJobs((cur) => cur.map((j) => (j.id === id ? fn(j) : j)));
 
@@ -78,6 +84,12 @@ export function AgentHub() {
     setTimeout(() => {
       update(id, (j) => ({ ...j, stage: "review", concepts: [0, 1, 2, 3].map((i) => conceptSvg(j.client, i, j.brief.colors)), chosen: 0 }));
       toast.success(L(`4 logo concepts generated via ${designTool}`, `تم توليد 4 تصاميم عبر ${designTool}`));
+      const j = jobs.find((x) => x.id === id);
+      const prompt = designPrompt || `Flat vector logo for "${j?.request ?? id}", colors: ${j?.brief.colors ?? "brand palette"}, minimal, scalable, white background, SVG-ready --style vector`;
+      const task = { id: `EXP-${Date.now().toString(36).toUpperCase()}`, job: id, tool: designTool, prompt, files: "logo.svg (vector) · logo@4096.png · logo.pdf", status: "ready" as const };
+      setExports((cur) => [task, ...cur]);
+      emitWebhook("design.export_ready", { jobId: id, tool: designTool, prompt, files: ["svg", "png-4096", "pdf"] });
+      if (autoDispatch) setTimeout(() => deliver(id), 600);
     }, 1400);
   };
 
@@ -111,12 +123,15 @@ export function AgentHub() {
         ? L(`Our best price is ${price} EGP (that's our minimum for this scope). Pay here to start: ${payLink}`, `أفضل سعر لدينا ${price} جنيه (الحد الأدنى لهذا العمل). ادفع هنا للبدء: ${payLink}`)
         : L(`Deal at ${price} EGP${rush ? " incl. rush delivery" : ""}. Pay via ${rules.gateway === "instapay" ? "InstaPay" : "Fawry"}: ${payLink}`, `اتفقنا على ${price} جنيه${rush ? " شاملة التسليم العاجل" : ""}. ادفع عبر ${rules.gateway === "instapay" ? "إنستاباي" : "فوري"}: ${payLink}`);
     }
+    if (j.stage === "new") emitWebhook("lead.contacted", { jobId: j.id, client: j.client, phone: j.phone });
+    if (stage !== j.stage) emitWebhook("lead.negotiation", { jobId: j.id, client: j.client, stage, price: price ?? null, payLink: payLink ?? null });
     update(j.id, (x) => ({ ...x, brief, price, payLink, stage, chat: [...x.chat, { from: "client", text: t }, { from: "ai", text: ai }] }));
   };
 
   const verifyPayment = () => {
     update(job.id, (j) => ({ ...j, stage: "paid", chat: [...j.chat, { from: "ai", text: L("Payment verified ✅ Starting your logo concepts now.", "تم التحقق من الدفع ✅ نبدأ تصميم الشعارات الآن.") }] }));
     toast.success(L("Payment verified", "تم التحقق من الدفع"));
+    emitWebhook("payment.verified", { jobId: job.id, client: job.client, amount: job.price ?? null, method: "InstaPay OCR" });
     if (autoGen) generate(job.id);
   };
 
@@ -124,6 +139,8 @@ export function AgentHub() {
     const target = jobs.find((x) => x.id === id)!;
     update(id, (j) => ({ ...j, stage: "delivered", chat: [...j.chat, { from: "ai", text: L("Your final logo files (SVG, PNG, PDF) were sent on WhatsApp 🎉", "تم إرسال ملفات الشعار النهائية (SVG وPNG وPDF) على واتساب 🎉") }] }));
     setHandoffOpen(false);
+    setExports((cur) => cur.map((e) => (e.job === id ? { ...e, status: "sent" } : e)));
+    emitWebhook("logo.sent_whatsapp", { jobId: id, phone: target.phone, files: ["logo.svg", "logo.png", "logo.pdf"], channel: "WhatsApp Business" });
     toast.success(L(`Final files sent to ${target.phone} via WhatsApp`, `تم إرسال الملفات إلى ${target.phone} عبر واتساب`));
   };
 
@@ -166,6 +183,7 @@ export function AgentHub() {
           <TabsList>
             <TabsTrigger value="negotiation"><CreditCard className="me-1.5 size-3.5" />{L("Smart Negotiation", "التفاوض الذكي")}</TabsTrigger>
             <TabsTrigger value="design"><ImageIcon className="me-1.5 size-3.5" />{L("AI Design", "التصميم بالذكاء")}</TabsTrigger>
+            <TabsTrigger value="webhooks"><Webhook className="me-1.5 size-3.5" />{L("Webhooks", "الويب هوك")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="negotiation" className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
@@ -231,7 +249,37 @@ export function AgentHub() {
                   ))}
                 </div>
               ) : <p className="py-10 text-center text-sm text-muted-foreground">{L("No concepts yet. Verify payment or click Generate.", "لا توجد تصاميم بعد. أكّد الدفع أو اضغط توليد.")}</p>}
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center justify-between"><h4 className="text-xs font-semibold">{L("Hi-res vector export tasks", "مهام تصدير الملفات الفيكتور")}</h4>
+                  <label className="flex items-center gap-2 text-xs">{L("Auto-dispatch via WhatsApp (skip review)", "إرسال تلقائي عبر واتساب (بدون مراجعة)")}<Switch checked={autoDispatch} onCheckedChange={setAutoDispatch} /></label></div>
+                {exports.filter((e) => e.job === job.id).map((e) => (
+                  <div key={e.id} className="rounded-md border border-border p-2 text-xs">
+                    <div className="flex items-center justify-between"><span className="font-mono">{e.id} · {e.tool}</span><Badge variant={e.status === "sent" ? "default" : "secondary"}><Download className="me-1 size-3" />{e.status}</Badge></div>
+                    <p className="mt-1 text-muted-foreground">{e.prompt}</p><p className="mt-1">{e.files}</p>
+                  </div>
+                ))}
+              </div>
               {job.stage === "review" && <Button className="mt-3" onClick={() => setHandoffOpen(true)}><UserCheck />{L("Open handoff review", "فتح مراجعة التسليم")}</Button>}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="webhooks" className="space-y-4">
+            <div className="space-y-2 rounded-lg border border-border bg-card p-4">
+              <h3 className="text-sm font-semibold">{L("Outgoing status webhooks (n8n / Make)", "ويب هوك الحالات الصادرة (n8n / Make)")}</h3>
+              <Input value={webhookUrl} onChange={(e) => setAppState({ webhookUrl: e.target.value })} className="font-mono text-xs" />
+              <p className="text-xs text-muted-foreground">{L("Fires on: Lead Contacted → Negotiation → Payment Verified → Export Ready → Logo Sent via WhatsApp.", "يُرسل عند: تواصل → تفاوض → تأكيد الدفع → جاهزية الملفات → إرسال الشعار عبر واتساب.")}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card">
+              <ul className="max-h-[480px] divide-y divide-border overflow-y-auto">
+                {webhookEvents.map((e) => (
+                  <li key={e.id} className="space-y-1 p-3 text-xs">
+                    <div className="flex items-center justify-between gap-2"><span className="font-mono font-semibold">{e.event}</span><Badge variant={e.status === "delivered" ? "default" : "destructive"}>{e.status === "delivered" ? "200 OK" : L("Failed", "فشل")}</Badge></div>
+                    <p className="text-muted-foreground">{new Date(e.at).toLocaleTimeString()} · POST {e.target}</p>
+                    <pre className="overflow-x-auto rounded bg-muted p-2 font-mono" dir="ltr">{JSON.stringify(e.payload, null, 2)}</pre>
+                  </li>
+                ))}
+                {!webhookEvents.length && <li className="p-8 text-center text-sm text-muted-foreground">{L("No events yet. Move a job through the pipeline.", "لا توجد أحداث بعد. حرّك مشروعاً عبر المراحل.")}</li>}
+              </ul>
             </div>
           </TabsContent>
         </Tabs>

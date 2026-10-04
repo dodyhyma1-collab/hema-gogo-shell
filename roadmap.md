@@ -21,3 +21,9 @@
 - [x] Dual-mode tabs (General Chat default / System & UI Developer)
 - [x] Action Execution Bridge (dark mode, theme, add lead, invoice status, inbox filter, navigate)
 - [x] Autonomous AI Agent & Freelance Automation Hub (/agent-hub)
+
+## Phase 12 — Master Agent & automated pipelines
+- [x] Job aggregator feed on /leads (n8n/Make inbound, scoring rules, auto-capture)
+- [x] Payment-verified → vector export tasks → WhatsApp dispatch on /agent-hub
+- [x] Outgoing status webhooks + event log
+- [x] AI Hema master tools (layout, lead scoring, workflows, webhooks, plan-then-execute)
