@@ -115,8 +115,33 @@ const businessTools = {
   }),
   open_page: tool({
     description: "Navigate the user to an app page.",
-    inputSchema: z.object({ page: z.enum(["/", "/inbox", "/leads", "/automations", "/logistics", "/approvals", "/finance", "/agent-hub"]) }),
+    inputSchema: z.object({ page: z.enum(["/", "/inbox", "/leads", "/automations", "/logistics", "/approvals", "/finance", "/agent-hub", "/automations"]) }),
     execute: async ({ page }) => ({ ok: true, appAction: { type: "navigate", page } }),
+  }),
+  set_layout: tool({
+    description: "Change UI layout instantly: density and visibility of AI Hema panels (quick prompts, code generation hub, audit log). Pass null for anything unchanged.",
+    inputSchema: z.object({ density: z.enum(["comfortable", "compact"]).nullable(), showQuickPrompts: z.boolean().nullable(), showGenerationHub: z.boolean().nullable(), showAuditLog: z.boolean().nullable() }),
+    execute: async (input) => ({ ok: true, appAction: { type: "set_layout", ...input } }),
+  }),
+  set_lead_scoring: tool({
+    description: "Adjust lead scoring rules: minimum qualification score (0-100) for job posts/leads to be auto-captured, and optional keyword list for the job aggregator.",
+    inputSchema: z.object({ minScore: z.number(), keywords: z.array(z.string()) }),
+    execute: async (input) => ({ ok: true, appAction: { type: "set_lead_scoring", ...input } }),
+  }),
+  trigger_workflow: tool({
+    description: "Run an automation workflow now (e.g. 'Welcome new lead', 'Overdue invoice reminder', 'Marketing broadcast').",
+    inputSchema: z.object({ workflow: z.string() }),
+    execute: async (input) => ({ ok: true, appAction: { type: "trigger_workflow", ...input } }),
+  }),
+  emit_webhook: tool({
+    description: "Fire an outgoing webhook event to the connected n8n/Make endpoint.",
+    inputSchema: z.object({ event: z.enum(["lead.contacted", "lead.negotiation", "payment.verified", "design.export_ready", "logo.sent_whatsapp", "job_post.captured", "workflow.triggered"]), note: z.string() }),
+    execute: async ({ event, note }) => ({ ok: true, appAction: { type: "emit_webhook", event, payload: { note } } }),
+  }),
+  set_webhook_url: tool({
+    description: "Set the outgoing webhook endpoint URL (n8n/Make) used for status-change events.",
+    inputSchema: z.object({ url: z.string() }),
+    execute: async (input) => ({ ok: true, appAction: { type: "set_webhook_url", ...input } }),
   }),
   save_memory: tool({
     description: "Remember a durable fact or preference about the user or their business for future conversations. Use when the user shares lasting information or asks you to remember something.",
@@ -132,6 +157,7 @@ You also act as an executive operations employee. When the user asks you to perf
 These tools operate on the workspace's demo environment; never claim real external delivery beyond what the tool result says.
 You have full system privileges inside the Hema Gogo app. When the user asks to change something in the app (dark mode, theme, add a lead, invoice status, inbox filter, open a page), call the matching tool (set_dark_mode, set_theme, add_lead_to_app, update_invoice_status, filter_inbox, open_page) — the change is applied instantly. Never tell the user to do it manually. Afterwards reply briefly, e.g. "Done! Changed to dark mode."
 ${mode === "developer" ? "MODE: System & UI Developer. Focus on code generation, UI layout edits and config tweaks; code blocks are welcome." : "MODE: General Chat & Assistant. Act as a personal/business co-pilot. Do not output code blocks unless the user explicitly asks for code."}
+You are the System Master Agent: for any business or operational idea, first write a short numbered execution plan, then immediately carry out every step you can with tools (set_layout, set_lead_scoring, trigger_workflow, emit_webhook, set_webhook_url and all others), and finish with a checklist of what was done. For code/layout refactors that tools cannot apply, produce the code and say it goes to the Self-Evolution audit log for approval.
 Use save_memory when the user shares durable facts or preferences.
 Reply in the user's language (default ${lang === "ar" ? "Arabic" : "English"}). Use clear markdown.
 ${tenant ? `Active workspace: ${tenant}.` : ""}
