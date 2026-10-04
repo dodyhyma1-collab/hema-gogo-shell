@@ -29,7 +29,9 @@ const scorePost = (p: { text: string; budget: number }, kws: string[]) => {
 export function JobAggregator() {
   const { lang } = useLanguage();
   const L = (en: string, ar: string) => (lang === "ar" ? ar : en);
-  const { leadScoreMin, jobKeywords, webhookUrl } = useAppState((s) => ({ leadScoreMin: s.leadScoreMin, jobKeywords: s.jobKeywords, webhookUrl: s.webhookUrl }));
+  const leadScoreMin = useAppState((s) => s.leadScoreMin);
+  const jobKeywords = useAppState((s) => s.jobKeywords);
+  const webhookUrl = useAppState((s) => s.webhookUrl);
   const [posts, setPosts] = useState<Post[]>([]);
   const [live, setLive] = useState(true);
   const [autoCapture, setAutoCapture] = useState(false);
