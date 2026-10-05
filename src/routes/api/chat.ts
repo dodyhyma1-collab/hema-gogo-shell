@@ -115,7 +115,7 @@ const businessTools = {
   }),
   open_page: tool({
     description: "Navigate the user to an app page.",
-    inputSchema: z.object({ page: z.enum(["/", "/inbox", "/leads", "/automations", "/logistics", "/approvals", "/finance", "/agent-hub", "/automations"]) }),
+    inputSchema: z.object({ page: z.enum(["/", "/inbox", "/leads", "/automations", "/logistics", "/approvals", "/finance", "/agent-hub", "/integrations"]) }),
     execute: async ({ page }) => ({ ok: true, appAction: { type: "navigate", page } }),
   }),
   set_layout: tool({
@@ -143,6 +143,30 @@ const businessTools = {
     inputSchema: z.object({ url: z.string() }),
     execute: async (input) => ({ ok: true, appAction: { type: "set_webhook_url", ...input } }),
   }),
+  plan_workflow_setup: tool({
+    description: "When the user describes a business goal or operational strategy, analyze it and show a Required Apps Setup Card listing the execution steps and every integration needed, with one-click connect. Call this BEFORE wiring.",
+    inputSchema: z.object({
+      goal: z.string(),
+      steps: z.array(z.string()),
+      required: z.array(z.object({ integrationId: z.enum(["whatsapp", "messenger", "instagram", "lead_scraper", "openai", "midjourney", "claude", "instapay", "paymob", "fawry", "bosta", "aramex"]), purpose: z.string() })),
+    }),
+    execute: async (input) => ({ ok: true, setupCard: input }),
+  }),
+  connect_integrations: tool({
+    description: "Connect one or more integrations in the App Integrations Hub immediately.",
+    inputSchema: z.object({ ids: z.array(z.enum(["whatsapp", "messenger", "instagram", "lead_scraper", "openai", "midjourney", "claude", "instapay", "paymob", "fawry", "bosta", "aramex"])) }),
+    execute: async ({ ids }) => ({ ok: true, appAction: { type: "connect_integrations", ids } }),
+  }),
+  assign_integration: tool({
+    description: "Assign which connected app handles tasks on a workspace page: inbox (messaging), leads (lead source), finance (invoicing/payments), logistics (carrier), agentHub (logo generation).",
+    inputSchema: z.object({ workspace: z.enum(["inbox", "leads", "finance", "logistics", "agentHub"]), integrationId: z.enum(["whatsapp", "messenger", "instagram", "lead_scraper", "openai", "midjourney", "claude", "instapay", "paymob", "fawry", "bosta", "aramex"]) }),
+    execute: async (input) => ({ ok: true, appAction: { type: "assign_integration", ...input } }),
+  }),
+  wire_workflow: tool({
+    description: "Autonomously wire a workflow end-to-end: connects all listed integrations, maps webhooks and assigns each workspace to the right app. Use after the user confirms a setup card.",
+    inputSchema: z.object({ name: z.string(), ids: z.array(z.enum(["whatsapp", "messenger", "instagram", "lead_scraper", "openai", "midjourney", "claude", "instapay", "paymob", "fawry", "bosta", "aramex"])) }),
+    execute: async (input) => ({ ok: true, appAction: { type: "wire_workflow", ...input } }),
+  }),
   save_memory: tool({
     description: "Remember a durable fact or preference about the user or their business for future conversations. Use when the user shares lasting information or asks you to remember something.",
     inputSchema: z.object({ fact: z.string() }),
@@ -158,7 +182,7 @@ These tools operate on the workspace's demo environment; never claim real extern
 You have full system privileges inside the Hema Gogo app. When the user asks to change something in the app (dark mode, theme, add a lead, invoice status, inbox filter, open a page), call the matching tool (set_dark_mode, set_theme, add_lead_to_app, update_invoice_status, filter_inbox, open_page) — the change is applied instantly. Never tell the user to do it manually. Afterwards reply briefly, e.g. "Done! Changed to dark mode."
 ${mode === "developer" ? "MODE: System & UI Developer. Focus on code generation, UI layout edits and config tweaks; code blocks are welcome." : "MODE: General Chat & Assistant. Act as a personal/business co-pilot. Do not output code blocks unless the user explicitly asks for code."}
 You are the System Master Agent: for any business or operational idea, first write a short numbered execution plan, then immediately carry out every step you can with tools (set_layout, set_lead_scoring, trigger_workflow, emit_webhook, set_webhook_url and all others), and finish with a checklist of what was done. For code/layout refactors that tools cannot apply, produce the code and say it goes to the Self-Evolution audit log for approval.
-Use save_memory when the user shares durable facts or preferences.
+EXECUTION PLANNER: when the user outlines a business goal (e.g. find logo clients in Facebook groups, contact via WhatsApp, accept InstaPay), call plan_workflow_setup with the steps and required integrations; the user sees a setup card with a "Connect all & wire" button. If the user then confirms in chat, call wire_workflow yourself. Use connect_integrations and assign_integration for direct requests. Integrations and outreach run in the demo environment; never claim real external delivery.\nUse save_memory when the user shares durable facts or preferences.
 Reply in the user's language (default ${lang === "ar" ? "Arabic" : "English"}). Use clear markdown.
 ${tenant ? `Active workspace: ${tenant}.` : ""}
 ${memories.length ? `Long-term memory about this user:\n${memories.map((m) => `- ${m}`).join("\n")}` : ""}`;
