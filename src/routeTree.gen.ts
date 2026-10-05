@@ -15,6 +15,7 @@ import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as AutomationsRouteImport } from './routes/automations'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as InboxRouteImport } from './routes/inbox'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as LogisticsRouteImport } from './routes/logistics'
 import { Route as AiHemaThreadIdRouteImport } from './routes/ai-hema.$threadId'
@@ -50,6 +51,11 @@ const InboxRoute = InboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeadsRoute = LeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/automations': typeof AutomationsRoute
   '/finance': typeof FinanceRoute
   '/inbox': typeof InboxRoute
+  '/integrations': typeof IntegrationsRoute
   '/leads': typeof LeadsRoute
   '/logistics': typeof LogisticsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/automations': typeof AutomationsRoute
   '/finance': typeof FinanceRoute
   '/inbox': typeof InboxRoute
+  '/integrations': typeof IntegrationsRoute
   '/leads': typeof LeadsRoute
   '/logistics': typeof LogisticsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/automations': typeof AutomationsRoute
   '/finance': typeof FinanceRoute
   '/inbox': typeof InboxRoute
+  '/integrations': typeof IntegrationsRoute
   '/leads': typeof LeadsRoute
   '/logistics': typeof LogisticsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/automations'
     | '/finance'
     | '/inbox'
+    | '/integrations'
     | '/leads'
     | '/logistics'
     | '/ai-hema/$threadId'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/automations'
     | '/finance'
     | '/inbox'
+    | '/integrations'
     | '/leads'
     | '/logistics'
     | '/ai-hema/$threadId'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/automations'
     | '/finance'
     | '/inbox'
+    | '/integrations'
     | '/leads'
     | '/logistics'
     | '/ai-hema/$threadId'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   AutomationsRoute: typeof AutomationsRoute
   FinanceRoute: typeof FinanceRoute
   InboxRoute: typeof InboxRoute
+  IntegrationsRoute: typeof IntegrationsRoute
   LeadsRoute: typeof LeadsRoute
   LogisticsRoute: typeof LogisticsRoute
   AiHemaThreadIdRoute: typeof AiHemaThreadIdRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leads': {
       id: '/leads'
       path: '/leads'
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   AutomationsRoute: AutomationsRoute,
   FinanceRoute: FinanceRoute,
   InboxRoute: InboxRoute,
+  IntegrationsRoute: IntegrationsRoute,
   LeadsRoute: LeadsRoute,
   LogisticsRoute: LogisticsRoute,
   AiHemaThreadIdRoute: AiHemaThreadIdRoute,

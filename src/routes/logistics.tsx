@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { IntegrationPicker } from "@/components/integrations/integration-picker";
 import { DispatchHub } from "@/components/logistics/dispatch-hub";
 import { AppSidebar } from "@/components/shell/app-sidebar";
 import { TopNav } from "@/components/shell/top-nav";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/logistics")({
       <AppSidebar />
       <SidebarInset className="min-w-0 bg-secondary/30">
         <TopNav />
+        <IntegrationPicker workspace="logistics" />
         <DispatchHub />
       </SidebarInset>
     </SidebarProvider>

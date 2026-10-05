@@ -4,6 +4,8 @@ import { DefaultChatTransport, isToolUIPart, type UIMessage } from "ai";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { executeAppAction, type AppAction } from "@/lib/app-state";
+import "@/lib/integrations";
+import { SetupCard, type SetupCardData } from "@/components/ai-hema/setup-card";
 import { Brain, Briefcase, Code2, FileText, Lightbulb, MessageCircle, PenLine, Truck } from "lucide-react";
 import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
@@ -47,6 +49,9 @@ const toolLabels: Record<string, { en: string; ar: string }> = {
   update_invoice_status: { en: "Updated invoice status", ar: "تحديث حالة الفاتورة" },
   filter_inbox: { en: "Filtered inbox", ar: "تصفية الوارد" },
   open_page: { en: "Opened page", ar: "فتح صفحة" },
+  connect_integrations: { en: "Connected apps", ar: "ربط التطبيقات" },
+  assign_integration: { en: "Assigned app to workspace", ar: "تعيين تطبيق لمساحة العمل" },
+  wire_workflow: { en: "Wired workflow", ar: "ربط سير العمل" },
 };
 
 export function ChatPane({
@@ -154,6 +159,8 @@ export function ChatPane({
                       );
                     if (isToolUIPart(part)) {
                       const name = part.type.replace(/^tool-/, "");
+                      const card = part.state === "output-available" ? (part.output as { setupCard?: SetupCardData })?.setupCard : undefined;
+                      if (card) return <SetupCard key={i} data={card} lang={lang} />;
                       return (
                         <Tool key={i} defaultOpen={false}>
                           <ToolHeader type={part.type as `tool-${string}`} state={part.state} title={toolLabels[name]?.[lang] ?? name} />

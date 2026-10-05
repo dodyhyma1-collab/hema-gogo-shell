@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { IntegrationPicker } from "@/components/integrations/integration-picker";
 import { UnifiedInbox } from "@/components/inbox/unified-inbox";
 import { AppSidebar } from "@/components/shell/app-sidebar";
 import { TopNav } from "@/components/shell/top-nav";
@@ -24,6 +25,7 @@ function InboxPage() {
       <AppSidebar />
       <SidebarInset className="h-svh min-w-0 overflow-hidden bg-secondary/30">
         <TopNav />
+        <IntegrationPicker workspace="inbox" />
         <UnifiedInbox />
       </SidebarInset>
     </SidebarProvider>

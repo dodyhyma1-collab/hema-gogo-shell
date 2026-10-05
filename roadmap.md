@@ -27,3 +27,8 @@
 - [x] Payment-verified → vector export tasks → WhatsApp dispatch on /agent-hub
 - [x] Outgoing status webhooks + event log
 - [x] AI Hema master tools (layout, lead scoring, workflows, webhooks, plan-then-execute)
+
+## Phase 13 — Integrations Hub & AI Hema Director
+- [x] /integrations marketplace (connect, status, saved connections, assignments)
+- [x] Integration picker bar on inbox, leads, finance, logistics, agent-hub
+- [x] AI Hema planner: setup card, connect/assign/wire tools

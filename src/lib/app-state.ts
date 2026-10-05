@@ -14,13 +14,21 @@ export type AppState = {
   leadScoreMin: number;
   jobKeywords: string[];
   workflowRuns: { id: string; workflow: string; at: string }[];
+  connections: Record<string, { status: "connected" | "disconnected" | "reauth"; keyHint?: string; webhook?: string; connectedAt?: string }>;
+  assignments: Partial<Record<"inbox" | "leads" | "finance" | "logistics" | "agentHub", string>>;
+  wiredWorkflows: { id: string; name: string; integrations: string[]; at: string }[];
 };
 export type WebhookEventName = "lead.contacted" | "lead.negotiation" | "payment.verified" | "design.export_ready" | "logo.sent_whatsapp" | "job_post.captured" | "workflow.triggered";
 export type WebhookEvent = { id: string; event: WebhookEventName; at: string; payload: Record<string, unknown>; status: "delivered" | "failed"; target: string };
 
 const KEY = "hema-gogo-app-state-v1";
 const EVENT = "hema-gogo-app-state-change";
-const initial: AppState = { darkMode: false, inboxFilter: "all", aiLeads: [], invoiceStatus: {}, webhookUrl: "https://hooks.hemagogo.app/v1/out/hg_live_7f3k", webhookEvents: [], leadScoreMin: 60, jobKeywords: ["logo", "graphic designer", "branding", "لوجو", "مصمم"], workflowRuns: [] };
+const initial: AppState = {
+  darkMode: false, inboxFilter: "all", aiLeads: [], invoiceStatus: {}, webhookUrl: "https://hooks.hemagogo.app/v1/out/hg_live_7f3k", webhookEvents: [], leadScoreMin: 60, jobKeywords: ["logo", "graphic designer", "branding", "لوجو", "مصمم"], workflowRuns: [],
+  connections: { whatsapp: { status: "connected", keyHint: "••••8f2a" }, instapay: { status: "connected", keyHint: "••••auto" }, bosta: { status: "reauth", keyHint: "••••41c0" } },
+  assignments: { inbox: "whatsapp", finance: "instapay", logistics: "bosta" },
+  wiredWorkflows: [],
+};
 let cache: AppState | null = null;
 
 export function getAppState(): AppState {
@@ -72,7 +80,18 @@ export type AppAction =
   | { type: "set_lead_scoring"; minScore: number; keywords?: string[] }
   | { type: "trigger_workflow"; workflow: string }
   | { type: "emit_webhook"; event: WebhookEventName; payload: Record<string, unknown> }
-  | { type: "set_webhook_url"; url: string };
+  | { type: "set_webhook_url"; url: string }
+  | { type: "connect_integrations"; ids: string[] }
+  | { type: "assign_integration"; workspace: "inbox" | "leads" | "finance" | "logistics" | "agentHub"; integrationId: string }
+  | { type: "wire_workflow"; name: string; ids: string[] };
+
+let integrationOps: null | {
+  connect: (id: string) => void;
+  assign: (w: "inbox" | "leads" | "finance" | "logistics" | "agentHub", id: string) => void;
+  wire: (name: string, ids: string[]) => void;
+} = null;
+/** Registered by src/lib/integrations.ts to avoid a circular import. */
+export function registerIntegrationOps(ops: NonNullable<typeof integrationOps>) { integrationOps = ops; }
 
 export function executeAppAction(action: AppAction, navigate: (path: string) => void): string {
   switch (action.type) {
@@ -116,5 +135,15 @@ export function executeAppAction(action: AppAction, navigate: (path: string) => 
     case "set_webhook_url":
       setAppState({ webhookUrl: action.url });
       return "Webhook URL updated";
+    case "connect_integrations":
+      action.ids.forEach((id) => integrationOps?.connect(id));
+      return `Connected: ${action.ids.join(", ")}`;
+    case "assign_integration":
+      integrationOps?.assign(action.workspace, action.integrationId);
+      return `${action.workspace} → ${action.integrationId}`;
+    case "wire_workflow":
+      integrationOps?.wire(action.name, action.ids);
+      emitWebhook("workflow.triggered", { workflow: action.name, integrations: action.ids });
+      return `Workflow wired: ${action.name}`;
   }
 }
