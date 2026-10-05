@@ -1,4 +1,4 @@
-import { getAppState, setAppState, useAppState } from "@/lib/app-state";
+import { getAppState, registerIntegrationOps, setAppState, useAppState } from "@/lib/app-state";
 
 export type IntegrationCategory = "messaging" | "ai" | "payments" | "logistics" | "automation";
 export type IntegrationStatus = "connected" | "disconnected" | "reauth";
@@ -74,3 +74,5 @@ export function wireWorkflow(name: string, ids: string[]) {
 
 export const useConnections = () => useAppState((s) => s.connections);
 export const useAssignments = () => useAppState((s) => s.assignments);
+
+registerIntegrationOps({ connect: (id) => connectIntegration(id), assign: assignIntegration, wire: wireWorkflow });
