@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { IntegrationPicker } from "@/components/integrations/integration-picker";
 import { FinanceHub } from "@/components/finance/finance-hub";
 import { AppSidebar } from "@/components/shell/app-sidebar";
 import { TopNav } from "@/components/shell/top-nav";
@@ -26,6 +27,7 @@ function FinancePage() {
       <AppSidebar />
       <SidebarInset className="min-w-0 bg-secondary/30">
         <TopNav />
+        <IntegrationPicker workspace="finance" />
         <FinanceHub initialTab={tab ?? "ocr"} />
       </SidebarInset>
     </SidebarProvider>
