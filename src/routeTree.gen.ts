@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AgentHubRouteImport } from './routes/agent-hub'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AutomationsRouteImport } from './routes/automations'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as InboxRouteImport } from './routes/inbox'
@@ -34,6 +35,11 @@ const AgentHubRoute = AgentHubRouteImport.update({
 const ApprovalsRoute = ApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AutomationsRoute = AutomationsRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agent-hub': typeof AgentHubRoute
   '/approvals': typeof ApprovalsRoute
+  '/auth': typeof AuthRoute
   '/automations': typeof AutomationsRoute
   '/finance': typeof FinanceRoute
   '/inbox': typeof InboxRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agent-hub': typeof AgentHubRoute
   '/approvals': typeof ApprovalsRoute
+  '/auth': typeof AuthRoute
   '/automations': typeof AutomationsRoute
   '/finance': typeof FinanceRoute
   '/inbox': typeof InboxRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/agent-hub': typeof AgentHubRoute
   '/approvals': typeof ApprovalsRoute
+  '/auth': typeof AuthRoute
   '/automations': typeof AutomationsRoute
   '/finance': typeof FinanceRoute
   '/inbox': typeof InboxRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agent-hub'
     | '/approvals'
+    | '/auth'
     | '/automations'
     | '/finance'
     | '/inbox'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agent-hub'
     | '/approvals'
+    | '/auth'
     | '/automations'
     | '/finance'
     | '/inbox'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agent-hub'
     | '/approvals'
+    | '/auth'
     | '/automations'
     | '/finance'
     | '/inbox'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgentHubRoute: typeof AgentHubRoute
   ApprovalsRoute: typeof ApprovalsRoute
+  AuthRoute: typeof AuthRoute
   AutomationsRoute: typeof AutomationsRoute
   FinanceRoute: typeof FinanceRoute
   InboxRoute: typeof InboxRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/approvals'
       fullPath: '/approvals'
       preLoaderRoute: typeof ApprovalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/automations': {
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentHubRoute: AgentHubRoute,
   ApprovalsRoute: ApprovalsRoute,
+  AuthRoute: AuthRoute,
   AutomationsRoute: AutomationsRoute,
   FinanceRoute: FinanceRoute,
   InboxRoute: InboxRoute,
