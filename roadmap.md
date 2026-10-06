@@ -34,13 +34,13 @@
 - [x] AI Hema planner: setup card, connect/assign/wire tools
 
 ## Phase 14 — Orchestrator engine
-- [ ] Sign-in + backend saving of settings and AI change history
-- [ ] Tracked changes with before/after view, rollback, pause (HITL)
-- [ ] Code proposals, webhook pipeline builder, negotiation guardrails, InstaPay check tools
-- [ ] Live execution stages in chat
+- [x] Sign-in + backend saving of settings and AI change history
+- [x] Tracked changes with before/after view, rollback, pause (HITL)
+- [x] Code proposals, webhook pipeline builder, negotiation guardrails, InstaPay check tools
+- [x] Live execution stages in chat
 
 ## Phase 15 — Multi-model router
-- [ ] Task-based routing (code→Claude, reasoning→GPT, long context→Gemini, fast→lite model)
-- [ ] Performance log (latency, tokens, acceptance) + learned preferences
-- [ ] Fallback on rate limits/outages
-- [ ] Router settings tab in /agent-hub
+- [x] Task-based routing (code→Claude, reasoning→GPT, long context→Gemini, fast→lite model)
+- [x] Performance log (latency, tokens, acceptance) + learned preferences
+- [x] Fallback on rate limits/outages
+- [x] Router settings tab in /agent-hub
