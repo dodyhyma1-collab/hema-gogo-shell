@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { ModelRouterPanel } from "@/components/agent-hub/model-router-panel";
 
 type Source = "form" | "facebook" | "instagram" | "whatsapp";
 type Stage = "new" | "negotiating" | "awaiting_payment" | "paid" | "designing" | "review" | "delivered";
@@ -183,6 +184,7 @@ export function AgentHub() {
           <TabsList>
             <TabsTrigger value="negotiation"><CreditCard className="me-1.5 size-3.5" />{L("Smart Negotiation", "التفاوض الذكي")}</TabsTrigger>
             <TabsTrigger value="design"><ImageIcon className="me-1.5 size-3.5" />{L("AI Design", "التصميم بالذكاء")}</TabsTrigger>
+            <TabsTrigger value="router"><Bot className="me-1.5 size-3.5" />{L("AI Model Router", "موجّه النماذج")}</TabsTrigger>
             <TabsTrigger value="webhooks"><Webhook className="me-1.5 size-3.5" />{L("Webhooks", "الويب هوك")}</TabsTrigger>
           </TabsList>
 
@@ -282,6 +284,7 @@ export function AgentHub() {
               </ul>
             </div>
           </TabsContent>
+          <TabsContent value="router"><ModelRouterPanel /></TabsContent>
         </Tabs>
       </div>
 
