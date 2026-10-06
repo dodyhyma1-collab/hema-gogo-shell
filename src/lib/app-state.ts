@@ -17,7 +17,15 @@ export type AppState = {
   connections: Record<string, { status: "connected" | "disconnected" | "reauth"; keyHint?: string; webhook?: string; connectedAt?: string }>;
   assignments: Partial<Record<"inbox" | "leads" | "finance" | "logistics" | "agentHub", string>>;
   wiredWorkflows: { id: string; name: string; integrations: string[]; at: string }[];
+  agentPaused: boolean;
+  pipelines: Pipeline[];
+  router: { auto: boolean; overrides: Partial<Record<TaskType, string>>; disabled: string[] };
+  modelStats: Record<string, ModelStat>;
 };
+export type TaskType = "code" | "reasoning" | "long_context" | "fast";
+export type ModelStat = { calls: number; fails: number; totalMs: number; tokens: number; accepted: number; rejected: number };
+export type PipelineStep = { integrationId: string; event: string; endpoint: string; payload: string };
+export type Pipeline = { id: string; name: string; steps: PipelineStep[]; at: string };
 export type WebhookEventName = "lead.contacted" | "lead.negotiation" | "payment.verified" | "design.export_ready" | "logo.sent_whatsapp" | "job_post.captured" | "workflow.triggered";
 export type WebhookEvent = { id: string; event: WebhookEventName; at: string; payload: Record<string, unknown>; status: "delivered" | "failed"; target: string };
 
@@ -28,6 +36,10 @@ const initial: AppState = {
   connections: { whatsapp: { status: "connected", keyHint: "••••8f2a" }, instapay: { status: "connected", keyHint: "••••auto" }, bosta: { status: "reauth", keyHint: "••••41c0" } },
   assignments: { inbox: "whatsapp", finance: "instapay", logistics: "bosta" },
   wiredWorkflows: [],
+  agentPaused: false,
+  pipelines: [],
+  router: { auto: true, overrides: {}, disabled: [] },
+  modelStats: {},
 };
 let cache: AppState | null = null;
 
@@ -83,7 +95,8 @@ export type AppAction =
   | { type: "set_webhook_url"; url: string }
   | { type: "connect_integrations"; ids: string[] }
   | { type: "assign_integration"; workspace: "inbox" | "leads" | "finance" | "logistics" | "agentHub"; integrationId: string }
-  | { type: "wire_workflow"; name: string; ids: string[] };
+  | { type: "wire_workflow"; name: string; ids: string[] }
+  | { type: "create_pipeline"; name: string; steps: PipelineStep[] };
 
 let integrationOps: null | {
   connect: (id: string) => void;
@@ -145,5 +158,8 @@ export function executeAppAction(action: AppAction, navigate: (path: string) => 
       integrationOps?.wire(action.name, action.ids);
       emitWebhook("workflow.triggered", { workflow: action.name, integrations: action.ids });
       return `Workflow wired: ${action.name}`;
+    case "create_pipeline":
+      setAppState((s) => ({ pipelines: [{ id: `PL-${Date.now().toString(36).toUpperCase()}`, name: action.name, steps: action.steps, at: new Date().toISOString() }, ...s.pipelines].slice(0, 30) }));
+      return `Pipeline created: ${action.name}`;
   }
 }
