@@ -153,7 +153,7 @@ export function ChatPane({
         }
       }
       const proposal = isToolUIPart(p) && p.state === "output-available" ? (p.output as { codeProposal?: Parameters<typeof registerCodeProposal>[0] })?.codeProposal : undefined;
-      if (proposal && !seenTools.current.has(p.toolCallId)) {
+      if (proposal && isToolUIPart(p) && !seenTools.current.has(p.toolCallId)) {
         seenTools.current.add(p.toolCallId);
         if (!initialMessages.some((im) => im.id === m.id)) registerCodeProposal(proposal);
       }
