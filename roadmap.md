@@ -32,3 +32,15 @@
 - [x] /integrations marketplace (connect, status, saved connections, assignments)
 - [x] Integration picker bar on inbox, leads, finance, logistics, agent-hub
 - [x] AI Hema planner: setup card, connect/assign/wire tools
+
+## Phase 14 — Orchestrator engine
+- [ ] Sign-in + backend saving of settings and AI change history
+- [ ] Tracked changes with before/after view, rollback, pause (HITL)
+- [ ] Code proposals, webhook pipeline builder, negotiation guardrails, InstaPay check tools
+- [ ] Live execution stages in chat
+
+## Phase 15 — Multi-model router
+- [ ] Task-based routing (code→Claude, reasoning→GPT, long context→Gemini, fast→lite model)
+- [ ] Performance log (latency, tokens, acceptance) + learned preferences
+- [ ] Fallback on rate limits/outages
+- [ ] Router settings tab in /agent-hub
