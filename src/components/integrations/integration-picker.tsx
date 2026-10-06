@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { HitlControls } from "@/components/ai-hema/change-views";
 import { useLanguage } from "@/lib/i18n";
 import { INTEGRATIONS, WORKSPACE_TASKS, assignIntegration, useAssignments, useConnections, type WorkspaceKey } from "@/lib/integrations";
 
@@ -44,7 +45,8 @@ export function IntegrationPicker({ workspace }: { workspace: WorkspaceKey }) {
           {status === "connected" ? (ar ? "متصل" : "Connected") : status === "reauth" ? (ar ? "يحتاج إعادة توثيق" : "Re-authenticate") : ar ? "غير متصل" : "Disconnected"}
         </Badge>
       )}
-      <Button asChild variant="ghost" size="sm" className="ms-auto">
+      <div className="ms-auto"><HitlControls /></div>
+      <Button asChild variant="ghost" size="sm">
         <Link to="/integrations">{ar ? "إدارة التكاملات" : "Manage integrations"}</Link>
       </Button>
     </div>

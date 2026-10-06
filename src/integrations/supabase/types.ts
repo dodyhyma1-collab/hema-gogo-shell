@@ -14,7 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_changes: {
+        Row: {
+          after: Json | null
+          before: Json | null
+          code: string | null
+          created_at: string
+          file_path: string | null
+          id: string
+          kind: string
+          status: string
+          target: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          after?: Json | null
+          before?: Json | null
+          code?: string | null
+          created_at?: string
+          file_path?: string | null
+          id: string
+          kind: string
+          status?: string
+          target?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          after?: Json | null
+          before?: Json | null
+          code?: string | null
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          kind?: string
+          status?: string
+          target?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workspace_state: {
+        Row: {
+          app_state: Json
+          runtime_config: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          app_state?: Json
+          runtime_config?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          app_state?: Json
+          runtime_config?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

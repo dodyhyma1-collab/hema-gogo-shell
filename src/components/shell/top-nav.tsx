@@ -16,6 +16,8 @@ import { tenants, type Tenant } from "@/lib/tenants";
 import { useLanguage } from "@/lib/i18n";
 import { useDemoData } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
+import { useCloudSync } from "@/lib/cloud-sync";
+import { supabase } from "@/integrations/supabase/client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 function useClickOutside(onClose: () => void) {
@@ -172,6 +174,8 @@ function NotificationsMenu() {
 
 function ProfileMenu() {
   const { t } = useLanguage();
+  const session = useCloudSync();
+  const email = session?.user.email ?? "";
   const [open, setOpen] = useState(false);
   const ref = useClickOutside(() => setOpen(false));
 
@@ -184,11 +188,11 @@ function ProfileMenu() {
         aria-expanded={open}
       >
         <span className="grid h-7 w-7 place-items-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
-          DH
+          {session ? email.slice(0, 2).toUpperCase() : "DH"}
         </span>
         <span className="hidden text-start sm:block">
-          <span className="block text-xs font-semibold leading-tight">Dody Hyma</span>
-          <span className="block text-[10px] leading-tight text-muted-foreground">Owner</span>
+          <span className="block max-w-32 truncate text-xs font-semibold leading-tight">{session ? email : "Dody Hyma"}</span>
+          <span className="block text-[10px] leading-tight text-muted-foreground">{session ? "Saved to cloud" : "Not signed in"}</span>
         </span>
       </button>
 
@@ -204,9 +208,15 @@ function ProfileMenu() {
             <CreditCard className="h-4 w-4 text-muted-foreground" /> {t("billing")}
           </button>
           <div className="my-1 h-px bg-border" />
-          <button className={cn(menuItem, "text-destructive hover:bg-destructive/10")}>
-            <LogOut className="h-4 w-4" /> {t("logout")}
-          </button>
+          {session ? (
+            <button className={cn(menuItem, "text-destructive hover:bg-destructive/10")} onClick={() => void supabase.auth.signOut()}>
+              <LogOut className="h-4 w-4" /> {t("logout")}
+            </button>
+          ) : (
+            <a href="/auth" className={menuItem}>
+              <User className="h-4 w-4 text-muted-foreground" /> Sign in to save
+            </a>
+          )}
         </div>
       )}
     </div>
