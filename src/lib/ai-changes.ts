@@ -12,11 +12,11 @@ export type AiChange = {
   kind: ChangeKind;
   title: string;
   target: string;
-  filePath?: string;
+  filePath?: string | undefined;
   before: Snapshot | null;
   after: Snapshot | null;
-  action?: AppAction;
-  code?: string;
+  action?: AppAction | undefined;
+  code?: string | undefined;
   status: ChangeStatus;
   createdAt: string;
 };
