@@ -6,6 +6,7 @@ import { useLanguage } from "@/lib/i18n";
 import { useDemoSync } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 import { JobAggregator } from "@/components/leads/job-aggregator";
+import { TargetOutreach } from "@/components/leads/target-outreach";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,6 +92,8 @@ export function LeadDiscovery() {
           </article>
         ))}
       </div>
+
+      <TargetOutreach />
 
       <JobAggregator />
 
