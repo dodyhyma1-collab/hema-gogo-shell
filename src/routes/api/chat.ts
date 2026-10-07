@@ -310,6 +310,8 @@ export const Route = createFileRoute("/api/chat")({
             }
           },
         });
+        // The run-id header waits for a gateway call, which never happens on the own-key path.
+        if (ownGemini) return createUIMessageStreamResponse({ stream });
         return withLovableAiGatewayRunIdHeader(createUIMessageStreamResponse({ stream }), runIdFetch);
       },
     },
