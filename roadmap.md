@@ -44,3 +44,6 @@
 - [x] Performance log (latency, tokens, acceptance) + learned preferences
 - [x] Fallback on rate limits/outages
 - [x] Router settings tab in /agent-hub
+
+## Phase 16 — API Settings
+- [x] /settings page: own Gemini key as primary provider, model pick, key test, built-in backup

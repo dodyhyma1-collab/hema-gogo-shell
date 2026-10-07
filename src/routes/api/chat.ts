@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse, stepCountIs, streamText, tool, type UIMessage } from "ai";
-import { classify, isRetryable, modelFor, pickChain, type RouterPrefs } from "@/lib/ai/router.server";
+import { classify, isRetryable, modelFor, OWN_GEMINI_PREFIX, pickChain, type RouterPrefs } from "@/lib/ai/router.server";
 import { z } from "zod";
 import {
   createLovableAiGatewayRunIdFetch,
@@ -16,7 +16,7 @@ const bodySchema = z.object({
   tenant: z.string().optional(),
   mode: z.enum(["general", "developer"]).optional(),
   paused: z.boolean().optional(),
-  router: z.object({ auto: z.boolean(), overrides: z.record(z.string(), z.string()), disabled: z.array(z.string()), stats: z.record(z.string(), z.any()) }).optional(),
+  router: z.object({ auto: z.boolean(), overrides: z.record(z.string(), z.string()), disabled: z.array(z.string()), stats: z.record(z.string(), z.any()), provider: z.enum(["builtin", "own_gemini"]).optional(), ownModel: z.string().max(80).optional(), ownOnly: z.boolean().optional() }).optional(),
 });
 
 const INTS = ["whatsapp", "messenger", "instagram", "lead_scraper", "openai", "midjourney", "claude", "instapay", "paymob", "fawry", "bosta", "aramex"] as const;
@@ -258,7 +258,10 @@ export const Route = createFileRoute("/api/chat")({
         const totalChars = JSON.stringify(ui).length;
         const task = classify(lastText, totalChars, mode);
         const prefs: RouterPrefs = { auto: router?.auto ?? true, overrides: (router?.overrides ?? {}) as RouterPrefs["overrides"], disabled: router?.disabled ?? [], stats: (router?.stats ?? {}) as RouterPrefs["stats"] };
-        const chain = pickChain(task, prefs);
+        const builtIn = pickChain(task, prefs);
+        // Own Gemini key goes first; built-in models stay as backup if it is busy or down.
+        const ownGemini = router?.provider === "own_gemini" && process.env["GOOGLE_API_KEY"];
+        const chain = ownGemini ? [OWN_GEMINI_PREFIX + (router?.ownModel || "gemini-3-flash-preview"), ...(router?.ownOnly ? [] : builtIn)] : builtIn;
         // Reasoning items are provider-specific; drop past ones so any model can continue the thread.
         const history = await convertToModelMessages(ui.map((m) => ({ ...m, parts: m.parts.filter((p) => p.type !== "reasoning" && !p.type.startsWith("data-")) })));
         const system = systemPrompt(lang, memories.slice(0, 50), tenant, mode, paused);
@@ -307,6 +310,8 @@ export const Route = createFileRoute("/api/chat")({
             }
           },
         });
+        // The run-id header waits for a gateway call, which never happens on the own-key path.
+        if (ownGemini) return createUIMessageStreamResponse({ stream });
         return withLovableAiGatewayRunIdHeader(createUIMessageStreamResponse({ stream }), runIdFetch);
       },
     },

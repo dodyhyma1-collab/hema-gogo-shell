@@ -73,6 +73,7 @@ export function AppSidebar() {
       : pathname.startsWith("/agent-hub") ? "agentHub"
       : pathname.startsWith("/integrations") ? "integrations"
       : pathname.startsWith("/finance") ? (tab === "ocr" ? "wallets" : "payments")
+      : pathname.startsWith("/settings") ? "settings"
       : "";
   const [picked, setActiveItem] = useState<string | null>(null);
   const activeItem = picked && !routeActive ? picked : routeActive;
@@ -121,6 +122,7 @@ export function AppSidebar() {
                         if (item.id === "integrations") navigate({ to: "/integrations" });
                         if (item.id === "wallets") navigate({ to: "/finance", search: { tab: "ocr" } });
                         if (item.id === "payments") navigate({ to: "/finance", search: { tab: "invoices" } });
+                        if (item.id === "settings") navigate({ to: "/settings" });
                         if (isMobile) setOpenMobile(false);
                       }}
                       className="h-10 gap-3 px-2.5 text-sidebar-foreground/75 transition-colors data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2"
