@@ -46,7 +46,7 @@ let cache: AppState | null = null;
 export function getAppState(): AppState {
   if (typeof window === "undefined") return initial;
   if (!cache) {
-    try { cache = { ...initial, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") }; } catch { cache = initial; }
+    try { const saved = JSON.parse(localStorage.getItem(KEY) ?? "{}"); cache = { ...initial, ...saved, router: { ...initial.router, ...(saved.router ?? {}) } }; } catch { cache = initial; }
   }
   return cache!;
 }
