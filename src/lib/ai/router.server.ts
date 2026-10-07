@@ -50,7 +50,14 @@ export function pickChain(task: TaskType, prefs: RouterPrefs): string[] {
 
 const BASE = "https://ai.gateway.lovable.dev/v1";
 
+export const OWN_GEMINI_PREFIX = "own-gemini/";
+
 export function modelFor(id: string, apiKey: string, fetchImpl: typeof fetch): { model: LanguageModel; providerOptions: Record<string, Record<string, never>> } {
+  if (id.startsWith(OWN_GEMINI_PREFIX)) {
+    // User's own Google Gemini key, via Google's OpenAI-compatible endpoint.
+    const p = createOpenAICompatible({ name: "google", baseURL: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: process.env["GOOGLE_API_KEY"] ?? "" });
+    return { model: p.chatModel(id.slice(OWN_GEMINI_PREFIX.length)), providerOptions: {} };
+  }
   if (id.startsWith("openai/")) {
     const p = createOpenAI({ baseURL: BASE, apiKey, headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" }, fetch: fetchImpl });
     return { model: p.responses(id), providerOptions: { openai: { forceReasoning: true, reasoningEffort: "medium", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } as never } };

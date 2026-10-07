@@ -19,7 +19,7 @@ export type AppState = {
   wiredWorkflows: { id: string; name: string; integrations: string[]; at: string }[];
   agentPaused: boolean;
   pipelines: Pipeline[];
-  router: { auto: boolean; overrides: Partial<Record<TaskType, string>>; disabled: string[] };
+  router: { auto: boolean; overrides: Partial<Record<TaskType, string>>; disabled: string[]; provider?: "builtin" | "own_gemini"; ownModel?: string; ownOnly?: boolean };
   modelStats: Record<string, ModelStat>;
 };
 export type TaskType = "code" | "reasoning" | "long_context" | "fast";
@@ -38,7 +38,7 @@ const initial: AppState = {
   wiredWorkflows: [],
   agentPaused: false,
   pipelines: [],
-  router: { auto: true, overrides: {}, disabled: [] },
+  router: { auto: true, overrides: {}, disabled: [], provider: "own_gemini", ownModel: "gemini-2.5-flash", ownOnly: false },
   modelStats: {},
 };
 let cache: AppState | null = null;
