@@ -38,7 +38,7 @@ const initial: AppState = {
   wiredWorkflows: [],
   agentPaused: false,
   pipelines: [],
-  router: { auto: true, overrides: {}, disabled: [], provider: "own_gemini", ownModel: "gemini-2.5-flash", ownOnly: false },
+  router: { auto: true, overrides: {}, disabled: [], provider: "own_gemini", ownModel: "gemini-3-flash-preview", ownOnly: false },
   modelStats: {},
 };
 let cache: AppState | null = null;

@@ -43,12 +43,12 @@ function ApiSettings() {
   const router = useAppState((s) => s.router);
   const set = (p: Partial<typeof router>) => setAppState((s) => ({ router: { ...s.router, ...p } }));
   const check = useServerFn(checkGeminiKey);
-  const model = router.ownModel || "gemini-2.5-flash";
+  const model = router.ownModel || "gemini-3-flash-preview";
   const [status, setStatus] = useState<{ ok: boolean; configured: boolean; message: string; models: string[] } | null>(null);
   const [busy, setBusy] = useState(false);
   const run = async () => { setBusy(true); try { setStatus(await check({ data: { model } })); } finally { setBusy(false); } };
   useEffect(() => { void run(); }, [model]); // eslint-disable-line react-hooks/exhaustive-deps
-  const models = status?.models.length ? status.models : ["gemini-2.5-flash", "gemini-2.5-pro"];
+  const models = status?.models.length ? status.models : ["gemini-3-flash-preview", "gemini-3.8-flash"];
 
   return (
     <main className="mx-auto w-full max-w-3xl space-y-6 p-4 md:p-8">

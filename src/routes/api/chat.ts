@@ -261,7 +261,7 @@ export const Route = createFileRoute("/api/chat")({
         const builtIn = pickChain(task, prefs);
         // Own Gemini key goes first; built-in models stay as backup if it is busy or down.
         const ownGemini = router?.provider === "own_gemini" && process.env["GOOGLE_API_KEY"];
-        const chain = ownGemini ? [OWN_GEMINI_PREFIX + (router?.ownModel || "gemini-2.5-flash"), ...(router?.ownOnly ? [] : builtIn)] : builtIn;
+        const chain = ownGemini ? [OWN_GEMINI_PREFIX + (router?.ownModel || "gemini-3-flash-preview"), ...(router?.ownOnly ? [] : builtIn)] : builtIn;
         // Reasoning items are provider-specific; drop past ones so any model can continue the thread.
         const history = await convertToModelMessages(ui.map((m) => ({ ...m, parts: m.parts.filter((p) => p.type !== "reasoning" && !p.type.startsWith("data-")) })));
         const system = systemPrompt(lang, memories.slice(0, 50), tenant, mode, paused);
