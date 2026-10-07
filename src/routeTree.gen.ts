@@ -19,6 +19,7 @@ import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as LogisticsRouteImport } from './routes/logistics'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AiHemaThreadIdRouteImport } from './routes/ai-hema.$threadId'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
@@ -72,6 +73,11 @@ const LogisticsRoute = LogisticsRouteImport.update({
   path: '/logistics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiHemaThreadIdRoute = AiHemaThreadIdRouteImport.update({
   id: '/ai-hema/$threadId',
   path: '/ai-hema/$threadId',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/integrations': typeof IntegrationsRoute
   '/leads': typeof LeadsRoute
   '/logistics': typeof LogisticsRoute
+  '/settings': typeof SettingsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/integrations': typeof IntegrationsRoute
   '/leads': typeof LeadsRoute
   '/logistics': typeof LogisticsRoute
+  '/settings': typeof SettingsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/integrations': typeof IntegrationsRoute
   '/leads': typeof LeadsRoute
   '/logistics': typeof LogisticsRoute
+  '/settings': typeof SettingsRoute
   '/ai-hema/$threadId': typeof AiHemaThreadIdRoute
   '/api/chat': typeof ApiChatRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/integrations'
     | '/leads'
     | '/logistics'
+    | '/settings'
     | '/ai-hema/$threadId'
     | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/integrations'
     | '/leads'
     | '/logistics'
+    | '/settings'
     | '/ai-hema/$threadId'
     | '/api/chat'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/integrations'
     | '/leads'
     | '/logistics'
+    | '/settings'
     | '/ai-hema/$threadId'
     | '/api/chat'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   IntegrationsRoute: typeof IntegrationsRoute
   LeadsRoute: typeof LeadsRoute
   LogisticsRoute: typeof LogisticsRoute
+  SettingsRoute: typeof SettingsRoute
   AiHemaThreadIdRoute: typeof AiHemaThreadIdRoute
   ApiChatRoute: typeof ApiChatRoute
 }
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogisticsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-hema/$threadId': {
       id: '/ai-hema/$threadId'
       path: '/ai-hema/$threadId'
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   IntegrationsRoute: IntegrationsRoute,
   LeadsRoute: LeadsRoute,
   LogisticsRoute: LogisticsRoute,
+  SettingsRoute: SettingsRoute,
   AiHemaThreadIdRoute: AiHemaThreadIdRoute,
   ApiChatRoute: ApiChatRoute,
 }
