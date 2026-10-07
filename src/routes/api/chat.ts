@@ -291,13 +291,11 @@ export const Route = createFileRoute("/api/chat")({
               const buffered: unknown[] = [];
               let emitted = false;
               let retry = false;
-              console.log("[chat] model", id);
               for await (const chunk of result.toUIMessageStream({
                 sendReasoning: true,
                 onError: friendly,
                 messageMetadata: ({ part }) => part.type === "finish" ? { model: id, task, ms: Date.now() - t0, tokens: (part as { totalUsage?: { totalTokens?: number } }).totalUsage?.totalTokens ?? 0, failed } : undefined,
               })) {
-                console.log("[chat] chunk", chunk.type, String(failure ?? "").slice(0, 300));
                 if (chunk.type === "error" && !emitted && i < chain.length - 1 && isRetryable(failure)) { retry = true; break; }
                 if (!emitted && (chunk.type === "start" || chunk.type === "start-step")) { buffered.push(chunk); continue; }
                 if (!emitted) {

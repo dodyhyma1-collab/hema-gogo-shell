@@ -11,3 +11,4 @@
 - AI Hema model routing lives in src/lib/ai/router.server.ts (task classify → model chain, failover only on 429/5xx); chat route streams via createUIMessageStream. Why: one place to change routing rules.
 - Every AI-applied app change goes through runTrackedAction in src/lib/ai-changes.ts so it can be rolled back; code is only proposed, never auto-applied. Why: human-in-the-loop safety.
 - Signed-in users' app state and AI changes sync to workspace_state/ai_changes tables (src/lib/cloud-sync.ts); localStorage stays the live cache. Why: works signed-out too.
+- AI Hema can run on the user's own Gemini key (GOOGLE_API_KEY, chosen on /settings); own-key model ids use the own-gemini/ prefix in router.server.ts and skip the gateway run-id header. Why: keeps the own-key path independent of workspace credits.
